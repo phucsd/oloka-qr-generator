@@ -8,7 +8,7 @@ import { QRDesignConfig } from '../types';
 
 export const DEFAULT_DESIGN_CONFIG: QRDesignConfig = {
   size: 400,
-  margin: 10,
+  margin: 16, // Safe default >= 4 modules
   errorCorrectionLevel: 'Q',
   fgColorType: 'solid',
   fgColor: '#1e1b4b',
@@ -44,11 +44,15 @@ export const DEFAULT_DESIGN_CONFIG: QRDesignConfig = {
 };
 
 export function buildQRCodeOptions(content: string, config: QRDesignConfig): QRCodeOptions {
+  if (!content || !content.trim()) {
+    throw new Error('EMPTY_PAYLOAD: Nội dung mã QR không được để trống');
+  }
+
   const options: QRCodeOptions = {
     width: config.size,
     height: config.size,
-    data: content || 'https://oloka-qr-generator.hf.space',
-    margin: config.margin,
+    data: content.trim(),
+    margin: Math.max(8, config.margin), // Ensure safe quiet zone
     qrOptions: {
       errorCorrectionLevel: config.errorCorrectionLevel,
     },
@@ -81,7 +85,7 @@ export function buildQRCodeOptions(content: string, config: QRDesignConfig): QRC
     options.image = config.logoUrl;
     options.imageOptions = {
       hideBackgroundDots: config.clearLogoBackground,
-      imageSize: config.logoSize,
+      imageSize: Math.min(0.35, config.logoSize), // Cap logo size to prevent unreadable QR
       margin: config.logoMargin,
       crossOrigin: 'anonymous',
     };
@@ -98,10 +102,9 @@ export async function renderQRToCanvas(
   const qrOptions = buildQRCodeOptions(content, config);
   const qrCode = new QRCodeStyling(qrOptions);
 
-  // Generate raw blob from qr-code-styling
   const rawBlob = await qrCode.getRawData('png');
   if (!rawBlob) {
-    throw new Error('Failed to generate raw QR image');
+    throw new Error('Không thể render ảnh QR raw');
   }
 
   const qrImg = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -118,9 +121,8 @@ export async function renderQRToCanvas(
   const qrSize = config.size;
   const frame = config.frame;
   const hasFrame = frame && frame.type !== 'none';
-  const hasLabel = !!labelText;
+  const hasLabel = !!(labelText && labelText.trim());
 
-  // Calculate layout dimensions
   let frameTopHeight = 0;
   let frameBottomHeight = 0;
   let labelHeight = 0;
@@ -153,27 +155,23 @@ export async function renderQRToCanvas(
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
   const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Cannot get canvas 2d context');
+  if (!ctx) throw new Error('Cannot get canvas context');
 
-  // Fill background
   if (!config.isTransparentBg) {
     ctx.fillStyle = config.bgColor;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
   }
 
-  // Draw Card Border frame if selected
   if (hasFrame && frame.type === 'card-border') {
     ctx.lineWidth = Math.max(4, Math.round(qrSize * 0.015));
     ctx.strokeStyle = frame.bgColor;
     ctx.strokeRect(padding / 2, padding / 2, canvasWidth - padding, canvasHeight - padding);
   }
 
-  // Calculate QR placement
   const qrX = (canvasWidth - qrSize) / 2;
   const qrY = (hasFrame && frame.type === 'card-border' ? padding : 0) + frameTopHeight;
   ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
 
-  // Draw Frame Top Bar
   if (hasFrame && frame.type === 'top-bar') {
     ctx.fillStyle = frame.bgColor;
     ctx.fillRect(0, 0, canvasWidth, frameTopHeight);
@@ -185,7 +183,6 @@ export async function renderQRToCanvas(
     ctx.fillText(frame.text, canvasWidth / 2, frameTopHeight / 2);
   }
 
-  // Draw Frame Bottom Bar / Bubble
   if (hasFrame && (frame.type === 'bottom-bar' || frame.type === 'bubble-bottom' || frame.type === 'card-border')) {
     const barY = qrY + qrSize;
     if (frame.type === 'bubble-bottom') {
@@ -226,8 +223,7 @@ export async function renderQRToCanvas(
     }
   }
 
-  // Draw Bottom Text Label (if any)
-  if (hasLabel) {
+  if (hasLabel && labelText) {
     const textY = canvasHeight - labelHeight / 2;
     ctx.fillStyle = config.isTransparentBg ? '#1e293b' : config.fgColorType === 'solid' ? config.fgColor : '#0f172a';
     ctx.font = `600 ${Math.round(labelHeight * 0.45)}px "Be Vietnam Pro", sans-serif`;
@@ -239,6 +235,136 @@ export async function renderQRToCanvas(
   return canvas;
 }
 
+/**
+ * Generates 100% PURE, GENUINE VECTOR SVG (never wrapped PNG)
+ */
+export async function renderQRToVectorSVG(
+  content: string,
+  config: QRDesignConfig,
+  labelText?: string
+): Promise<string> {
+  const qrOptions = buildQRCodeOptions(content, config);
+  const qrCode = new QRCodeStyling(qrOptions);
+
+  const rawSvgBlob = await qrCode.getRawData('svg');
+  if (!rawSvgBlob) throw new Error('Không thể tạo SVG');
+
+  const rawSvgText = await (rawSvgBlob as Blob).text();
+
+  const qrSize = config.size;
+  const frame = config.frame;
+  const hasFrame = frame && frame.type !== 'none';
+  const hasLabel = !!(labelText && labelText.trim());
+
+  if (!hasFrame && !hasLabel) {
+    return rawSvgText;
+  }
+
+  // Calculate dimensions
+  let frameTopHeight = 0;
+  let frameBottomHeight = 0;
+  let labelHeight = 0;
+  let padding = 16;
+
+  if (hasFrame) {
+    if (frame.type === 'bottom-bar' || frame.type === 'bubble-bottom') {
+      frameBottomHeight = Math.max(48, Math.round(qrSize * 0.14));
+    } else if (frame.type === 'top-bar') {
+      frameTopHeight = Math.max(48, Math.round(qrSize * 0.14));
+    } else if (frame.type === 'card-border') {
+      frameBottomHeight = Math.max(48, Math.round(qrSize * 0.14));
+      padding = 24;
+    }
+  }
+
+  if (hasLabel) {
+    labelHeight = Math.max(32, Math.round(qrSize * 0.08));
+  }
+
+  const totalWidth = qrSize + (hasFrame && frame.type === 'card-border' ? padding * 2 : 0);
+  const totalHeight =
+    qrSize +
+    frameTopHeight +
+    frameBottomHeight +
+    labelHeight +
+    (hasFrame && frame.type === 'card-border' ? padding * 2 : 0);
+
+  const qrX = (totalWidth - qrSize) / 2;
+  const qrY = (hasFrame && frame.type === 'card-border' ? padding : 0) + frameTopHeight;
+
+  // Extract inner SVG content (strip out outer <svg> wrapper)
+  const innerContentMatch = rawSvgText.match(/<svg[^>]*>([\s\S]*?)<\/svg>/i);
+  const innerSvgContent = innerContentMatch ? innerContentMatch[1] : rawSvgText;
+
+  let extraSvgElements = '';
+
+  // Background rect
+  if (!config.isTransparentBg) {
+    extraSvgElements += `<rect width="${totalWidth}" height="${totalHeight}" fill="${config.bgColor}" />\n`;
+  }
+
+  // Frame card border
+  if (hasFrame && frame.type === 'card-border') {
+    const strokeW = Math.max(4, Math.round(qrSize * 0.015));
+    extraSvgElements += `<rect x="${padding / 2}" y="${padding / 2}" width="${totalWidth - padding}" height="${totalHeight - padding}" fill="none" stroke="${frame.bgColor}" stroke-width="${strokeW}" rx="12" />\n`;
+  }
+
+  // Top Bar Frame
+  if (hasFrame && frame.type === 'top-bar') {
+    const fontSize = Math.round(frameTopHeight * 0.45);
+    extraSvgElements += `<rect x="0" y="0" width="${totalWidth}" height="${frameTopHeight}" fill="${frame.bgColor}" />\n`;
+    extraSvgElements += `<text x="${totalWidth / 2}" y="${frameTopHeight / 2 + fontSize * 0.35}" fill="${frame.textColor}" font-family="${frame.font || 'sans-serif'}" font-size="${fontSize}" font-weight="bold" text-anchor="middle">${escapeXml(frame.text)}</text>\n`;
+  }
+
+  // Bottom Bar / Bubble Frame
+  if (hasFrame && (frame.type === 'bottom-bar' || frame.type === 'bubble-bottom' || frame.type === 'card-border')) {
+    const barY = qrY + qrSize;
+    const fontSize = Math.round(frameBottomHeight * 0.45);
+
+    if (frame.type === 'bubble-bottom') {
+      const bubbleW = totalWidth * 0.8;
+      const bubbleH = frameBottomHeight * 0.8;
+      const bubbleX = (totalWidth - bubbleW) / 2;
+      const bubbleY = barY + (frameBottomHeight - bubbleH) / 2;
+      const r = bubbleH / 2;
+      extraSvgElements += `<rect x="${bubbleX}" y="${bubbleY}" width="${bubbleW}" height="${bubbleH}" rx="${r}" fill="${frame.bgColor}" />\n`;
+      extraSvgElements += `<text x="${totalWidth / 2}" y="${bubbleY + bubbleH / 2 + fontSize * 0.35}" fill="${frame.textColor}" font-family="${frame.font || 'sans-serif'}" font-size="${fontSize}" font-weight="bold" text-anchor="middle">${escapeXml(frame.text)}</text>\n`;
+    } else {
+      extraSvgElements += `<rect x="0" y="${barY}" width="${totalWidth}" height="${frameBottomHeight}" fill="${frame.bgColor}" />\n`;
+      extraSvgElements += `<text x="${totalWidth / 2}" y="${barY + frameBottomHeight / 2 + fontSize * 0.35}" fill="${frame.textColor}" font-family="${frame.font || 'sans-serif'}" font-size="${fontSize}" font-weight="bold" text-anchor="middle">${escapeXml(frame.text)}</text>\n`;
+    }
+  }
+
+  // Bottom Label Text
+  if (hasLabel && labelText) {
+    const labelFontSize = Math.round(labelHeight * 0.45);
+    const labelY = totalHeight - labelHeight / 2 + labelFontSize * 0.35;
+    const labelColor = config.isTransparentBg ? '#1e293b' : config.fgColorType === 'solid' ? config.fgColor : '#0f172a';
+    extraSvgElements += `<text x="${totalWidth / 2}" y="${labelY}" fill="${labelColor}" font-family="Be Vietnam Pro, sans-serif" font-size="${labelFontSize}" font-weight="600" text-anchor="middle">${escapeXml(labelText)}</text>\n`;
+  }
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${totalWidth} ${totalHeight}">
+${extraSvgElements}
+<g transform="translate(${qrX}, ${qrY})">
+${innerSvgContent}
+</g>
+</svg>`;
+}
+
+function escapeXml(unsafe: string): string {
+  return unsafe.replace(/[<>&'"]/g, (c) => {
+    switch (c) {
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '&': return '&amp;';
+      case '\'': return '&apos;';
+      case '"': return '&quot;';
+      default: return c;
+    }
+  });
+}
+
 export async function downloadQRCode(
   content: string,
   config: QRDesignConfig,
@@ -246,12 +372,23 @@ export async function downloadQRCode(
   filename: string = 'qrcode',
   labelText?: string
 ): Promise<void> {
+  if (!content || !content.trim()) {
+    throw new Error('EMPTY_PAYLOAD: Không thể tải mã QR khi chưa có dữ liệu');
+  }
+
   const safeFilename = filename.replace(/[/\\?%*:|"<>]/g, '_').trim() || 'qrcode';
 
-  if (format === 'svg' && (!config.frame || config.frame.type === 'none') && !labelText) {
-    const qrOptions = buildQRCodeOptions(content, config);
-    const qrCode = new QRCodeStyling(qrOptions);
-    await qrCode.download({ extension: 'svg', name: safeFilename });
+  if (format === 'svg') {
+    const svgString = await renderQRToVectorSVG(content, config, labelText);
+    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${safeFilename}.svg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
     return;
   }
 

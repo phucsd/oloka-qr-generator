@@ -40,7 +40,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200/90 shadow-2xs">
             <Zap className="w-4 h-4 text-amber-500" />
-            <span>Tốc Độ 0 Giây, Không Chờ Đợi</span>
+            <span>Xử Lý Tức Thì Tại Trình Duyệt</span>
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200/90 shadow-2xs">
             <FileSpreadsheet className="w-4 h-4 text-indigo-600" />
@@ -48,7 +48,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200/90 shadow-2xs">
             <Gift className="w-4 h-4 text-rose-500" />
-            <span>Không Giới Hạn, Không Watermark</span>
+            <span>Miễn Phí, Không Watermark</span>
           </div>
         </div>
 

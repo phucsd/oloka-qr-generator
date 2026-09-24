@@ -31,7 +31,7 @@ const FAQS: FAQItem[] = [
   {
     question: 'Dữ liệu file Excel và khách hàng của tôi có được bảo mật không?',
     answer:
-      'Tuyệt đối an toàn 100%. Không giống như các website cũ (như Dorabot) phải gửi file của bạn lên máy chủ để xử lý, Oloka QR hoạt động 100% tại Client-Side (ngay trên trình duyệt máy tính của bạn bằng công nghệ WebAssembly và Canvas API hiện đại). Không có bất kỳ dòng dữ liệu nào bị lưu trữ hay truyền ra ngoài.',
+      'Tuyệt đối an toàn và riêng tư. Khác với các hệ thống yêu cầu gửi file dữ liệu của bạn lên máy chủ lưu trữ từ xa, Oloka QR hoạt động 100% tại Client-Side (xử lý trực tiếp ngay trên trình duyệt thiết bị của bạn bằng JavaScript, HTML5 Canvas và SVG). Không có bất kỳ dòng dữ liệu nào bị tải lên máy chủ trung gian hay lưu vết ra bên ngoài.',
   },
   {
     question: 'Làm thế nào để xuất mã QR thành file tem nhãn in ấn khổ A4?',
@@ -41,12 +41,12 @@ const FAQS: FAQItem[] = [
   {
     question: 'Nên chọn định dạng file PNG hay SVG khi in ấn mã QR?',
     answer:
-      'Nếu bạn in tem nhãn thông thường, file ảnh PNG độ phân giải 1000px - 2000px (tương đương 300 - 600 DPI) là hoàn hảo và cực kỳ sắc nét. Nếu bạn cần in ấn khổ lớn (như biển hiệu, pano, áp phích hội chợ), bạn nên chọn định dạng Vector SVG để phóng to thu nhỏ tùy ý mà không bao giờ bị vỡ hạt hay mờ nét.',
+      'Nếu bạn in tem nhãn thông thường, file ảnh PNG độ phân giải cao 1000px - 2000px sẽ đảm bảo mật độ điểm ảnh sắc nét chuẩn in ấn khi in ở kích thước tem 3-5 cm. Nếu bạn cần in ấn khổ lớn (như biển hiệu, pano, áp phích hội chợ), bạn nên chọn định dạng Vector SVG để phóng to thu nhỏ tùy ý mà không bao giờ bị vỡ hạt hay mờ nét.',
   },
   {
     question: 'Mã QR chèn Logo thương hiệu ở giữa thì camera điện thoại có quét được không?',
     answer:
-      'Chắc chắn quét cực kỳ nhạy! Oloka QR tự động kích hoạt mức độ sửa lỗi cao nhất (High - 30%), nghĩa là ngay cả khi 30% diện tích mã QR bị che bởi logo, thuật toán Reed-Solomon vẫn phục hồi nguyên vẹn 100% dữ liệu. Ngoài ra, tính năng "Xóa nền sau logo" độc quyền giúp tạo khoảng trống an toàn xung quanh logo để camera dễ dàng nhận diện.',
+      'Chắc chắn quét cực kỳ nhạy! Oloka QR tự động kích hoạt mức độ sửa lỗi cao nhất (High - 30%), nghĩa là ngay cả khi đến 30% diện tích mã QR bị che bởi logo, thuật toán Reed-Solomon vẫn phục hồi dữ liệu chính xác. Ngoài ra, tính năng tạo khoảng trống đệm phía sau logo giúp tách biệt các chấm QR và logo thương hiệu để camera điện thoại dễ dàng nhận diện.',
   },
   {
     question: 'Mã QR tạo ra có thời hạn sử dụng (hết hạn) hay không?',
@@ -149,7 +149,7 @@ export const SEOArticle: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-100">
               <tr className="hover:bg-slate-50">
-                <td className="py-3 px-4 font-bold text-indigo-600">PNG (300 DPI)</td>
+                <td className="py-3 px-4 font-bold text-indigo-600">PNG (Độ Phân Giải Cao)</td>
                 <td className="py-3 px-4">1000px - 2000px</td>
                 <td className="py-3 px-4">Hỗ trợ nền trong suốt, độ tương thích cao nhất trên mọi thiết bị</td>
                 <td className="py-3 px-4 font-medium">Tem nhãn sản phẩm, bao bì đóng gói, in ấn tài liệu</td>

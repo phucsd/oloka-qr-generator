@@ -1,22 +1,44 @@
 import * as XLSX from 'xlsx';
+import { BulkItem } from '../types';
 
-export interface ExcelParseResult {
+export interface ExcelWorkbookInfo {
+  sheetNames: string[];
+  selectedSheet: string;
   headers: string[];
   rows: Record<string, string>[];
   totalCount: number;
 }
 
-export async function parseExcelOrCsvFile(file: File): Promise<ExcelParseResult> {
+export async function parseExcelOrCsvFile(
+  file: File,
+  targetSheetName?: string
+): Promise<ExcelWorkbookInfo> {
   const data = await file.arrayBuffer();
-  const workbook = XLSX.read(data, { type: 'array' });
-  const firstSheetName = workbook.SheetNames[0];
-  const worksheet = workbook.Sheets[firstSheetName];
+  const workbook = XLSX.read(data, {
+    type: 'array',
+    cellDates: true,
+    cellText: true,
+  });
 
-  // Convert to array of objects
-  const rawJson = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, { defval: '' });
+  const sheetNames = workbook.SheetNames;
+  if (sheetNames.length === 0) {
+    return { sheetNames: [], selectedSheet: '', headers: [], rows: [], totalCount: 0 };
+  }
+
+  const selectedSheet = targetSheetName && sheetNames.includes(targetSheetName)
+    ? targetSheetName
+    : sheetNames[0];
+
+  const worksheet = workbook.Sheets[selectedSheet];
+
+  // raw: false ensures strings like "00123" or phone numbers "090..." preserve leading zeros
+  const rawJson = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, {
+    raw: false,
+    defval: '',
+  });
 
   if (rawJson.length === 0) {
-    return { headers: [], rows: [], totalCount: 0 };
+    return { sheetNames, selectedSheet, headers: [], rows: [], totalCount: 0 };
   }
 
   const headers = Object.keys(rawJson[0]);
@@ -29,6 +51,8 @@ export async function parseExcelOrCsvFile(file: File): Promise<ExcelParseResult>
   });
 
   return {
+    sheetNames,
+    selectedSheet,
     headers,
     rows,
     totalCount: rows.length,
@@ -70,17 +94,42 @@ export function downloadSampleExcelTemplate(): void {
   ];
 
   const worksheet = XLSX.utils.json_to_sheet(sampleData);
-
-  // Set nice column widths
   worksheet['!cols'] = [
-    { wch: 38 }, // Nội dung QR
-    { wch: 28 }, // Tên File
-    { wch: 32 }, // Nhãn in kèm
-    { wch: 42 }, // Ghi chú
+    { wch: 38 },
+    { wch: 28 },
+    { wch: 32 },
+    { wch: 42 },
   ];
 
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh_Sach_QR_Mau');
-
   XLSX.writeFile(workbook, 'Mau_Tao_Ma_QR_Hang_Loat_Oloka.xlsx');
+}
+
+export function exportValidationReportExcel(
+  items: BulkItem[],
+  filename: string = 'Bao_Cao_Kiem_Tra_QR_Batch.xlsx'
+): void {
+  const reportData = items.map((item, idx) => ({
+    STT: idx + 1,
+    'Dữ Liệu QR': item.data || '(Trống)',
+    'Tên File': item.filename,
+    'Nhãn In': item.label || '',
+    'Trạng Thái': item.status === 'success' ? 'Thành Công' : item.status === 'error' ? 'Lỗi' : 'Chưa Xử Lý',
+    'Ghi Chú Lỗi': item.errorMessage || '',
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(reportData);
+  worksheet['!cols'] = [
+    { wch: 8 },
+    { wch: 45 },
+    { wch: 30 },
+    { wch: 30 },
+    { wch: 18 },
+    { wch: 40 },
+  ];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Ket_Qua_Kiem_Tra');
+  XLSX.writeFile(workbook, filename);
 }

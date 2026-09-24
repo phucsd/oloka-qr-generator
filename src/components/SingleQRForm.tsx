@@ -16,6 +16,7 @@ import {
   Share2,
 } from 'lucide-react';
 import {
+  BankInfo,
   EmailData,
   EventData,
   LocationData,
@@ -30,7 +31,7 @@ import {
   WiFiData,
   ZoomData,
 } from '../types';
-import { POPULAR_BANKS } from '../services/vietqrService';
+import { STATIC_BANKS, fetchLiveBankList } from '../services/vietqrService';
 
 interface SingleQRFormProps {
   onContentChange: (type: QRType, data: any) => void;
@@ -38,8 +39,18 @@ interface SingleQRFormProps {
 
 export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) => {
   const [activeType, setActiveType] = useState<QRType>('url');
+  const [bankList, setBankList] = useState<BankInfo[]>(STATIC_BANKS);
 
-  // Form states for each type
+  // Load 55+ live banks on mount
+  useEffect(() => {
+    fetchLiveBankList().then((banks) => {
+      if (banks && banks.length > 0) {
+        setBankList(banks);
+      }
+    });
+  }, []);
+
+  // Form states
   const [text, setText] = useState('Chào mừng bạn đến với Oloka QR Generator!');
   const [url, setUrl] = useState('https://oloka.vn');
   const [vietqr, setVietqr] = useState<VietQRData>({
@@ -50,7 +61,7 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
     description: 'Thanh toan don hang',
   });
   const [wifi, setWifi] = useState<WiFiData>({
-    ssid: 'Oloka_HighSpeed_WiFi',
+    ssid: 'Oloka_Guest_WiFi',
     password: 'OlokaPassword2026',
     encryption: 'WPA',
     hidden: false,
@@ -80,8 +91,8 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
     message: 'Xin chào, tôi cần hỗ trợ tư vấn!',
   });
   const [zoom, setZoom] = useState<ZoomData>({
-    meetingId: '829 1234 5678',
-    password: 'OlokaZoomPass',
+    meetingId: 'https://zoom.us/j/82912345678',
+    password: '',
   });
   const [event, setEvent] = useState<EventData>({
     title: 'Hội Thảo Ra Mắt Sản Phẩm Oloka 2026',
@@ -108,7 +119,7 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
     usernameOrUrl: 'olokavn',
   });
 
-  // Emit current data to parent whenever activeType or form values change
+  // Emit current data to parent
   useEffect(() => {
     switch (activeType) {
       case 'text':
@@ -230,18 +241,13 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
               Đường Dẫn Website / Landing Page
             </label>
-            <div className="relative rounded-xl shadow-2xs">
-              <input
-                type="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://example.com"
-                className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
-              />
-            </div>
-            <p className="mt-2 text-xs text-slate-500">
-              Nhập link website, link shopee, tiktok shop, bài viết blog hoặc bất kỳ liên kết nào.
-            </p>
+            <input
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://example.com"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            />
           </div>
         )}
 
@@ -265,11 +271,8 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Nhập bất kỳ đoạn văn bản, ghi chú, mã vạch nào..."
-              className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all resize-none"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 resize-none"
             />
-            <p className="mt-1 text-xs text-slate-500">
-              Độ dài ký tự: {text.length} (Hỗ trợ tiếng Việt đầy đủ có dấu).
-            </p>
           </div>
         )}
 
@@ -279,21 +282,21 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
             <div className="p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl text-xs text-indigo-900 flex items-center gap-2">
               <CreditCard className="w-4 h-4 text-indigo-600 shrink-0" />
               <span>
-                Mã VietQR chuẩn Napas247 giúp khách hàng quét chuyển khoản nhanh bằng tất cả app ngân hàng và ví điện tử (MoMo, ZaloPay, Vietcombank, MB, v.v.).
+                Mã VietQR chuyển khoản nhanh theo tài khoản (QRIBFTTA) chuẩn Napas247, quét được bởi 100% ứng dụng ngân hàng và ví điện tử.
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Chọn Ngân Hàng Thụ Hưởng
+                  Chọn Ngân Hàng Thụ Hưởng ({bankList.length} ngân hàng)
                 </label>
                 <select
                   value={vietqr.bankBin}
                   onChange={(e) => setVietqr({ ...vietqr, bankBin: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/30"
                 >
-                  {POPULAR_BANKS.map((b) => (
+                  {bankList.map((b) => (
                     <option key={b.bin} value={b.bin}>
                       {b.shortName} - {b.name}
                     </option>
@@ -303,14 +306,14 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Số Tài Khoản Ngân Hàng
+                  Số Tài Khoản Ngân Hàng <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={vietqr.accountNumber}
                   onChange={(e) => setVietqr({ ...vietqr, accountNumber: e.target.value })}
                   placeholder="Ví dụ: 1012345678"
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/30"
                 />
               </div>
             </div>
@@ -318,14 +321,14 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Tên Chủ Tài Khoản (In hoa không dấu)
+                  Tên Chủ Tài Khoản (Dùng hiển thị trên tem nhãn / thẻ QR)
                 </label>
                 <input
                   type="text"
                   value={vietqr.accountName}
                   onChange={(e) => setVietqr({ ...vietqr, accountName: e.target.value.toUpperCase() })}
                   placeholder="Ví dụ: NGUYEN VAN A"
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm uppercase focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm uppercase focus:ring-2 focus:ring-indigo-500/30"
                 />
               </div>
 
@@ -338,7 +341,7 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
                   value={vietqr.amount}
                   onChange={(e) => setVietqr({ ...vietqr, amount: e.target.value })}
                   placeholder="Ví dụ: 500000"
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/30"
                 />
               </div>
             </div>
@@ -351,8 +354,8 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
                 type="text"
                 value={vietqr.description}
                 onChange={(e) => setVietqr({ ...vietqr, description: e.target.value })}
-                placeholder="Ví dụ: Thanh toan tien mua ao Polo"
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+                placeholder="Ví dụ: Thanh toan don hang SP01"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/30"
               />
             </div>
           </div>
@@ -370,7 +373,7 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
                 value={wifi.ssid}
                 onChange={(e) => setWifi({ ...wifi, ssid: e.target.value })}
                 placeholder="Ví dụ: Coffee_Oloka_Guest"
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm"
               />
             </div>
 
@@ -384,7 +387,7 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
                   value={wifi.password}
                   onChange={(e) => setWifi({ ...wifi, password: e.target.value })}
                   placeholder="Nhập mật khẩu..."
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm"
                 />
               </div>
 
@@ -395,7 +398,7 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
                 <select
                   value={wifi.encryption}
                   onChange={(e) => setWifi({ ...wifi, encryption: e.target.value as any })}
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm"
                 >
                   <option value="WPA">WPA / WPA2 / WPA3 (Phổ biến)</option>
                   <option value="WEP">WEP (Mạng cũ)</option>
@@ -429,7 +432,7 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
                   type="text"
                   value={vcard.fullName}
                   onChange={(e) => setVcard({ ...vcard, fullName: e.target.value })}
-                  placeholder="Ví dụ: Nguyễn Văn An"
+                  placeholder="Nguyễn Văn An"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"
                 />
               </div>
@@ -439,7 +442,7 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
                   type="text"
                   value={vcard.organization}
                   onChange={(e) => setVcard({ ...vcard, organization: e.target.value })}
-                  placeholder="Ví dụ: Oloka Tech Ltd"
+                  placeholder="Oloka Tech Ltd"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"
                 />
               </div>
@@ -550,11 +553,8 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
               value={phone.phone}
               onChange={(e) => setPhone({ phone: e.target.value })}
               placeholder="0903456789"
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-indigo-500/30"
             />
-            <p className="mt-2 text-xs text-slate-500">
-              Khi quét mã này, điện thoại sẽ tự động mở bàn phím số và sẵn sàng quay số gọi.
-            </p>
           </div>
         )}
 
@@ -614,27 +614,20 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
 
         {/* Zoom Form */}
         {activeType === 'zoom' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Meeting ID</label>
-              <input
-                type="text"
-                value={zoom.meetingId}
-                onChange={(e) => setZoom({ ...zoom, meetingId: e.target.value })}
-                placeholder="829 1234 5678"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Mật Khẩu Cuộc Họp</label>
-              <input
-                type="text"
-                value={zoom.password}
-                onChange={(e) => setZoom({ ...zoom, password: e.target.value })}
-                placeholder="Mật khẩu..."
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Đường Dẫn Tham Gia Cuộc Họp Zoom (Join URL) hoặc Meeting ID
+            </label>
+            <input
+              type="text"
+              value={zoom.meetingId}
+              onChange={(e) => setZoom({ ...zoom, meetingId: e.target.value })}
+              placeholder="https://zoom.us/j/82912345678?pwd=..."
+              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/30"
+            />
+            <p className="mt-1 text-xs text-slate-500">
+              Khuyên dùng: Dán trực tiếp Zoom Join URL đã có sẵn passcode từ lịch họp Zoom của bạn.
+            </p>
           </div>
         )}
 
@@ -653,7 +646,7 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Thời Gian Bắt Đầu</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Thời Gian Bắt Đầu (Giờ địa phương)</label>
                 <input
                   type="datetime-local"
                   value={event.startTime}
@@ -662,7 +655,7 @@ export const SingleQRForm: React.FC<SingleQRFormProps> = ({ onContentChange }) =
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Thời Gian Kết Thúc</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Thời Gian Kết Thúc (Giờ địa phương)</label>
                 <input
                   type="datetime-local"
                   value={event.endTime}

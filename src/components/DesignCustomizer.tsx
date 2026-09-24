@@ -411,7 +411,7 @@ export const DesignCustomizer: React.FC<DesignCustomizerProps> = ({ config, onCh
             </div>
             <div>
               <h3 className="text-xs sm:text-sm font-bold text-slate-900">Logo Thương Hiệu</h3>
-              <p className="text-[11px] text-slate-500">Tải ảnh lên, logo mạng xã hội, xóa nền thông minh</p>
+              <p className="text-[11px] text-slate-500">Tải ảnh lên, logo mạng xã hội, khoảng trống đệm cho logo</p>
             </div>
           </div>
           {openSection === 'logo' ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
@@ -503,7 +503,7 @@ export const DesignCustomizer: React.FC<DesignCustomizerProps> = ({ config, onCh
                     className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
                   />
                   <span className="font-semibold text-slate-700">
-                    Xóa các chấm QR đằng sau logo (Giúp camera quét siêu nhạy)
+                    Tạo khoảng trống đệm phía sau logo (Tránh chấm QR đè lên logo, giúp quét nhanh)
                   </span>
                 </label>
               </div>
@@ -654,7 +654,7 @@ export const DesignCustomizer: React.FC<DesignCustomizerProps> = ({ config, onCh
             </div>
             <div>
               <h3 className="text-xs sm:text-sm font-bold text-slate-900">Thông Số Kỹ Thuật & Sửa Lỗi</h3>
-              <p className="text-[11px] text-slate-500">Độ phân giải 300 DPI, mức sửa lỗi L/M/Q/H, viền lề</p>
+              <p className="text-[11px] text-slate-500">Độ phân giải pixel, mức sửa lỗi L/M/Q/H, viền lề an toàn</p>
             </div>
           </div>
           {openSection === 'advanced' ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
@@ -672,10 +672,10 @@ export const DesignCustomizer: React.FC<DesignCustomizerProps> = ({ config, onCh
                   onChange={(e) => onChange({ ...config, size: Number(e.target.value) })}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold"
                 >
-                  <option value="300">300 x 300 px (Mạng xã hội)</option>
-                  <option value="500">500 x 500 px (Chuẩn Website)</option>
-                  <option value="1000">1000 x 1000 px (In Tem Nhãn 300 DPI)</option>
-                  <option value="2000">2000 x 2000 px (In Pano Áp Phích Khổ Lớn)</option>
+                  <option value="300">300 x 300 px (Màn hình nhỏ / Web)</option>
+                  <option value="500">500 x 500 px (Chuẩn hiển thị số)</option>
+                  <option value="1000">1000 x 1000 px (Khuyến nghị cho in ấn 3-5 cm)</option>
+                  <option value="2000">2000 x 2000 px (In khổ lớn / Pano / Standee)</option>
                 </select>
               </div>
 
@@ -699,7 +699,9 @@ export const DesignCustomizer: React.FC<DesignCustomizerProps> = ({ config, onCh
             <div>
               <div className="flex items-center justify-between mb-1">
                 <span className="font-semibold text-slate-700">Viền Lề An Toàn (Quiet Zone):</span>
-                <span className="font-mono text-slate-600">{config.margin}px</span>
+                <span className="font-mono text-slate-600">
+                  {config.margin}px {config.margin < 8 ? '(Khuyến nghị ≥ 8px)' : '(Chuẩn)'}
+                </span>
               </div>
               <input
                 type="range"
@@ -709,6 +711,9 @@ export const DesignCustomizer: React.FC<DesignCustomizerProps> = ({ config, onCh
                 onChange={(e) => onChange({ ...config, margin: Number(e.target.value) })}
                 className="w-full accent-indigo-600"
               />
+              <p className="text-[10px] text-slate-500 mt-1">
+                Theo chuẩn ISO/IEC 18004, mã QR cần khoảng đệm viền lề trống tối thiểu 4 modules để các ứng dụng camera nhận diện và quét tức thì.
+              </p>
             </div>
           </div>
         )}

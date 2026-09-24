@@ -11,19 +11,22 @@ import {
   AlertCircle,
   X,
   FileText,
-  Sparkles,
+  Layers,
+  FileDown,
 } from 'lucide-react';
 import { BulkItem, QRDesignConfig } from '../types';
 import {
   downloadSampleExcelTemplate,
   parseExcelOrCsvFile,
+  exportValidationReportExcel,
+  ExcelWorkbookInfo,
 } from '../services/excelService';
 import {
   cancelBatchProcessing,
   processAndDownloadBatchZip,
   BatchProgress,
 } from '../services/batchService';
-import { generatePrintablePDF } from '../services/pdfService';
+import { generatePrintablePDF, LABEL_PRESETS } from '../services/pdfService';
 
 interface BulkQRManagerProps {
   designConfig: QRDesignConfig;
@@ -36,6 +39,7 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
 }) => {
   const fileInputId = useId();
   const [bulkInputType, setBulkInputType] = useState<'excel' | 'textarea'>('excel');
+  const [isDragging, setIsDragging] = useState(false);
 
   // Textarea input state
   const [rawText, setRawText] = useState(
@@ -46,6 +50,8 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
 
   // Excel state
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [sheetNames, setSheetNames] = useState<string[]>([]);
+  const [selectedSheet, setSelectedSheet] = useState<string>('');
   const [headers, setHeaders] = useState<string[]>([]);
   const [rawRows, setRawRows] = useState<Record<string, string>[]>([]);
   const [selectedDataCol, setSelectedDataCol] = useState<string>('');
@@ -57,63 +63,66 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState<BatchProgress | null>(null);
   const [exportFormat, setExportFormat] = useState<'png' | 'webp'>('png');
-  const [pdfGrid, setPdfGrid] = useState<'3x6' | '4x8'>('3x6');
+  const [selectedPdfPreset, setSelectedPdfPreset] = useState<string>('a4-18');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [lastReportItems, setLastReportItems] = useState<BulkItem[] | null>(null);
 
-  // Parse items from either Textarea or Excel
+  // Parse items from either Textarea or Excel (WITHOUT silently dropping errors!)
   const getBulkItems = (): BulkItem[] => {
     if (bulkInputType === 'textarea') {
-      const lines = rawText
-        .split('\n')
-        .map((l) => l.trim())
-        .filter((l) => l.length > 0);
+      const lines = rawText.split('\n');
 
-      return lines.map((line, idx) => ({
-        id: `text-${idx}`,
-        index: idx,
-        data: line,
-        filename: `${textPrefix}_${String(idx + 1).padStart(3, '0')}`,
-        label: includeLabelFromText ? line.substring(0, 30) : undefined,
-        status: 'pending',
-      }));
+      return lines.map((line, idx) => {
+        const trimmed = line.trim();
+        const hasData = trimmed.length > 0;
+        return {
+          id: `text-${idx}`,
+          index: idx,
+          data: trimmed,
+          filename: `${textPrefix}_${String(idx + 1).padStart(3, '0')}`,
+          label: includeLabelFromText && hasData ? trimmed.substring(0, 32) : undefined,
+          status: hasData ? 'pending' : 'error',
+          errorMessage: hasData ? undefined : 'Dòng văn bản bị trống',
+        };
+      });
     } else {
       if (!selectedDataCol || rawRows.length === 0) return [];
 
-      return rawRows
-        .map((row, idx) => {
-          const dataVal = row[selectedDataCol] || '';
-          const nameVal = selectedFilenameCol ? row[selectedFilenameCol] : '';
-          const labelVal = selectedLabelCol ? row[selectedLabelCol] : '';
+      return rawRows.map((row, idx) => {
+        const dataVal = (row[selectedDataCol] || '').trim();
+        const nameVal = selectedFilenameCol ? (row[selectedFilenameCol] || '').trim() : '';
+        const labelVal = selectedLabelCol ? (row[selectedLabelCol] || '').trim() : '';
 
-          return {
-            id: `row-${idx}`,
-            index: idx,
-            data: dataVal,
-            filename: nameVal || `qr_${String(idx + 1).padStart(3, '0')}`,
-            label: labelVal || undefined,
-            status: dataVal ? 'pending' : 'error',
-            errorMessage: dataVal ? undefined : 'Thiếu dữ liệu tạo mã QR',
-          } as BulkItem;
-        })
-        .filter((item) => item.data.length > 0);
+        const hasData = dataVal.length > 0;
+        return {
+          id: `row-${idx}`,
+          index: idx,
+          data: dataVal,
+          filename: nameVal || `qr_${String(idx + 1).padStart(3, '0')}`,
+          label: labelVal || undefined,
+          status: hasData ? 'pending' : 'error',
+          errorMessage: hasData ? undefined : `Thiếu dữ liệu tại cột "${selectedDataCol}"`,
+        };
+      });
     }
   };
 
   const currentItems = getBulkItems();
+  const validCount = currentItems.filter((i) => i.data.length > 0).length;
+  const errorCount = currentItems.filter((i) => i.data.length === 0).length;
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const handleProcessFile = async (file: File, sheetName?: string) => {
     try {
       setErrorMessage(null);
-      const res = await parseExcelOrCsvFile(file);
+      const res: ExcelWorkbookInfo = await parseExcelOrCsvFile(file, sheetName);
       if (res.headers.length === 0 || res.rows.length === 0) {
-        setErrorMessage('File tải lên không có dữ liệu hoặc không đúng định dạng');
+        setErrorMessage('File tải lên không có dữ liệu hoặc sheet được chọn rỗng');
         return;
       }
 
       setUploadedFile(file);
+      setSheetNames(res.sheetNames);
+      setSelectedSheet(res.selectedSheet);
       setHeaders(res.headers);
       setRawRows(res.rows);
 
@@ -136,25 +145,44 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
     }
   };
 
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleProcessFile(file);
+  };
+
+  const handleSheetChange = (sheet: string) => {
+    if (uploadedFile) {
+      handleProcessFile(uploadedFile, sheet);
+    }
+  };
+
   const handleDownloadZip = async () => {
-    if (currentItems.length === 0) {
-      setErrorMessage('Chưa có danh sách mã QR để tạo. Vui lòng nhập dữ liệu hoặc tải file Excel');
+    if (validCount === 0) {
+      setErrorMessage('Không có dòng dữ liệu hợp lệ nào để tạo mã QR');
       return;
     }
 
     setErrorMessage(null);
     setIsProcessing(true);
-    setProgress({ current: 0, total: currentItems.length, percentage: 0, currentFilename: 'Bắt đầu xử lý...' });
+    setProgress({
+      current: 0,
+      total: currentItems.length,
+      percentage: 0,
+      currentFilename: 'Khởi tạo...',
+      successCount: 0,
+      errorCount,
+    });
 
     try {
       const filenameBase = uploadedFile ? uploadedFile.name.replace(/\.[^.]+$/, '') : 'oloka_qr_batch';
-      await processAndDownloadBatchZip(
+      const result = await processAndDownloadBatchZip(
         currentItems,
         designConfig,
         exportFormat,
         filenameBase,
         (p) => setProgress(p)
       );
+      setLastReportItems(result.reportItems);
     } catch (err: any) {
       console.error(err);
       setErrorMessage(err.message || 'Có lỗi xảy ra khi tạo file ZIP');
@@ -165,25 +193,26 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
   };
 
   const handleDownloadPDF = async () => {
-    if (currentItems.length === 0) {
-      setErrorMessage('Chưa có danh sách mã QR để in');
+    if (validCount === 0) {
+      setErrorMessage('Không có mã QR hợp lệ để xuất tem nhãn PDF');
       return;
     }
 
     setErrorMessage(null);
     setIsProcessing(true);
     try {
-      const [cols, rows] = pdfGrid === '3x6' ? [3, 6] : [4, 8];
-      const filenameBase = uploadedFile ? `${uploadedFile.name.replace(/\.[^.]+$/, '')}_tem_nhan` : 'oloka_tem_nhan_a4';
+      const filenameBase = uploadedFile
+        ? `${uploadedFile.name.replace(/\.[^.]+$/, '')}_tem_nhan`
+        : 'oloka_tem_nhan_a4';
+
       await generatePrintablePDF(
         currentItems,
         designConfig,
         {
-          columns: cols,
-          rows: rows,
-          pageSize: 'a4',
+          presetId: selectedPdfPreset,
           showCutBorder: true,
           showLabels: true,
+          showOlokaFooter: false,
         },
         filenameBase
       );
@@ -209,10 +238,10 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
         <div>
           <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
             <FileSpreadsheet className="w-5 h-5 text-indigo-600" />
-            <span>Tạo Mã QR Hàng Loạt (Bulk Generator)</span>
+            <span>Tạo Mã QR Hàng Loạt Từ Excel / CSV</span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Tạo đồng thời hàng trăm mã QR, tải về trọn bộ file ZIP hoặc in tem nhãn PDF
+            Xử lý hàng loạt tại trình duyệt, tải về trọn bộ ZIP và xuất PDF in tem nhãn A4
           </p>
         </div>
 
@@ -239,21 +268,41 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
             }`}
           >
             <FileText className="w-4 h-4 text-indigo-600" />
-            <span>Nhập Văn Bản Nhiều Dòng</span>
+            <span>Nhập Text Nhiều Dòng</span>
           </button>
         </div>
       </div>
 
-      {/* Mode 1: Excel / CSV Upload */}
+      {/* Mode 1: Excel / CSV Drag & Drop Upload */}
       {bulkInputType === 'excel' && (
         <div className="space-y-4">
           {!uploadedFile ? (
-            <div className="border-2 border-dashed border-slate-200 hover:border-indigo-400 bg-slate-50/50 hover:bg-indigo-50/20 rounded-2xl p-6 sm:p-8 text-center transition-all">
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+                setIsDragging(false);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                const file = e.dataTransfer.files?.[0];
+                if (file) handleProcessFile(file);
+              }}
+              className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center transition-all ${
+                isDragging
+                  ? 'border-indigo-600 bg-indigo-50/50 scale-[1.01]'
+                  : 'border-slate-200 hover:border-indigo-400 bg-slate-50/50 hover:bg-indigo-50/20'
+              }`}
+            >
               <input
                 type="file"
                 id={fileInputId}
                 accept=".xlsx, .xls, .csv"
-                onChange={handleFileUpload}
+                onChange={handleFileInputChange}
                 className="hidden"
               />
               <label htmlFor={fileInputId} className="cursor-pointer block">
@@ -279,29 +328,40 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
             </div>
           ) : (
             <div className="space-y-4">
-              {/* File Info Card */}
-              <div className="flex items-center justify-between p-3.5 bg-indigo-50/60 border border-indigo-100 rounded-xl">
+              {/* File Info Card with Sheet Selector */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-indigo-50/60 border border-indigo-100 rounded-xl gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs shrink-0">
                     <FileSpreadsheet className="w-5 h-5" />
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-slate-900">{uploadedFile.name}</h3>
                     <p className="text-xs text-slate-500">
-                      Đã đọc thành công <span className="font-bold text-indigo-600">{rawRows.length}</span> dòng dữ liệu
+                      Đã đọc <span className="font-bold text-indigo-600">{rawRows.length}</span> dòng dữ liệu
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={downloadSampleExcelTemplate}
-                    className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-white border border-emerald-200 rounded-lg shadow-2xs hover:bg-emerald-50"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>File Mẫu</span>
-                  </button>
+                  {/* Sheet selector if workbook has multiple sheets */}
+                  {sheetNames.length > 1 && (
+                    <div className="flex items-center gap-1.5 bg-white border border-slate-200 px-2 py-1 rounded-lg text-xs">
+                      <Layers className="w-3.5 h-3.5 text-indigo-600" />
+                      <span className="text-slate-500">Sheet:</span>
+                      <select
+                        value={selectedSheet}
+                        onChange={(e) => handleSheetChange(e.target.value)}
+                        className="font-bold text-slate-700 bg-transparent focus:outline-none"
+                      >
+                        {sheetNames.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => {
@@ -310,7 +370,7 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
                       setRawRows([]);
                     }}
                     className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-white transition-all"
-                    title="Chọn file khác"
+                    title="Đổi file khác"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -349,7 +409,7 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
                       onChange={(e) => setSelectedFilenameCol(e.target.value)}
                       className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-indigo-500/30"
                     >
-                      <option value="">(Tự động đặt theo số thứ tự qr_001...)</option>
+                      <option value="">(Tự động: qr_001, qr_002...)</option>
                       {headers.map((h) => (
                         <option key={h} value={h}>
                           {h}
@@ -367,7 +427,7 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
                       onChange={(e) => setSelectedLabelCol(e.target.value)}
                       className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-indigo-500/30"
                     >
-                      <option value="">(Không in chữ bên dưới)</option>
+                      <option value="">(Không in chữ)</option>
                       {headers.map((h) => (
                         <option key={h} value={h}>
                           {h}
@@ -422,35 +482,64 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
             />
 
             <div className="mt-2 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
-              <p>
-                Tổng số dòng:{' '}
-                <span className="font-bold text-indigo-600">{currentItems.length} mã QR</span>
-              </p>
-
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1.5">
-                  <span>Tiền tố tên file:</span>
-                  <input
-                    type="text"
-                    value={textPrefix}
-                    onChange={(e) => setTextPrefix(e.target.value)}
-                    className="w-20 px-2 py-0.5 bg-white border border-slate-200 rounded text-xs"
-                    placeholder="qr"
-                  />
-                </div>
-
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={includeLabelFromText}
-                    onChange={(e) => setIncludeLabelFromText(e.target.checked)}
-                    className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
-                  />
-                  <span>In kèm dòng chữ dưới QR</span>
-                </label>
+              <div className="flex items-center gap-1.5">
+                <span>Tiền tố tên file:</span>
+                <input
+                  type="text"
+                  value={textPrefix}
+                  onChange={(e) => setTextPrefix(e.target.value)}
+                  className="w-20 px-2 py-0.5 bg-white border border-slate-200 rounded text-xs"
+                  placeholder="qr"
+                />
               </div>
+
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={includeLabelFromText}
+                  onChange={(e) => setIncludeLabelFromText(e.target.checked)}
+                  className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                />
+                <span>In kèm dòng chữ dưới QR</span>
+              </label>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Batch Summary Badges */}
+      {currentItems.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-600">Tổng cộng:</span>
+            <span className="px-2 py-0.5 rounded-full bg-slate-200 text-slate-800 font-bold font-mono">
+              {currentItems.length}
+            </span>
+            <span className="text-slate-300">•</span>
+            <span className="font-semibold text-emerald-700">Hợp lệ:</span>
+            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold font-mono">
+              {validCount}
+            </span>
+            {errorCount > 0 && (
+              <>
+                <span className="text-slate-300">•</span>
+                <span className="font-semibold text-rose-700">Lỗi dữ liệu:</span>
+                <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold font-mono">
+                  {errorCount}
+                </span>
+              </>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => exportValidationReportExcel(currentItems)}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg text-slate-700 font-semibold shadow-2xs transition-all"
+            title="Tải bảng danh sách báo cáo chi tiết từng dòng"
+          >
+            <FileDown className="w-3.5 h-3.5 text-indigo-600" />
+            <span>Tải Báo Cáo Kiểm Tra (.xlsx)</span>
+          </button>
         </div>
       )}
 
@@ -467,7 +556,7 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-              Bảng Xem Trước Dữ Liệu ({currentItems.length} mã)
+              Bảng Xem Trước Dữ Liệu
             </h3>
             <div className="relative w-48 sm:w-64">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
@@ -488,19 +577,23 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
                   <tr>
                     <th className="py-2.5 px-3 w-12 text-center">STT</th>
                     <th className="py-2.5 px-3">Nội Dung QR</th>
-                    <th className="py-2.5 px-3 w-40">Tên File</th>
-                    <th className="py-2.5 px-3 w-36">Nhãn Dưới QR</th>
-                    <th className="py-2.5 px-3 w-20 text-center">Thao Tác</th>
+                    <th className="py-2.5 px-3 w-36">Tên File</th>
+                    <th className="py-2.5 px-3 w-32">Nhãn In</th>
+                    <th className="py-2.5 px-3 w-28 text-center">Trạng Thái</th>
+                    <th className="py-2.5 px-3 w-16 text-center">Xem</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredPreviewRows.slice(0, 10).map((row) => (
-                    <tr key={row.id} className="hover:bg-indigo-50/30 transition-colors">
+                    <tr
+                      key={row.id}
+                      className={row.status === 'error' ? 'bg-rose-50/40' : 'hover:bg-indigo-50/30 transition-colors'}
+                    >
                       <td className="py-2 px-3 text-center text-slate-400 font-mono">
                         {row.index + 1}
                       </td>
                       <td className="py-2 px-3 font-medium text-slate-800 truncate max-w-xs">
-                        {row.data}
+                        {row.data || <span className="text-rose-500 italic">(Trống)</span>}
                       </td>
                       <td className="py-2 px-3 text-slate-600 font-mono text-[11px]">
                         {row.filename}.{exportFormat}
@@ -509,14 +602,28 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
                         {row.label || '-'}
                       </td>
                       <td className="py-2 px-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => onPreviewItemSelect(row.data)}
-                          className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 underline"
-                          title="Xem thử mã QR này trên khung bên phải"
-                        >
-                          Xem thử
-                        </button>
+                        {row.status === 'error' ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">
+                            <AlertCircle className="w-3 h-3" />
+                            <span>Lỗi dữ liệu</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>Sẵn sàng</span>
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2 px-3 text-center">
+                        {row.data && (
+                          <button
+                            type="button"
+                            onClick={() => onPreviewItemSelect(row.data)}
+                            className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 underline"
+                          >
+                            Xem
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -525,7 +632,7 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
             </div>
             {filteredPreviewRows.length > 10 && (
               <div className="py-2 px-3 bg-slate-50 text-[11px] text-slate-500 border-t border-slate-100 text-center">
-                Đang hiển thị 10/{filteredPreviewRows.length} dòng đầu tiên. Tất cả {currentItems.length} mã sẽ được tạo đầy đủ khi tải về.
+                Đang hiển thị 10/{filteredPreviewRows.length} dòng. Báo cáo kiểm tra đầy đủ có thể tải qua nút bên trên.
               </div>
             )}
           </div>
@@ -538,7 +645,9 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
           <div className="flex items-center justify-between text-xs font-bold text-indigo-950">
             <span className="flex items-center gap-2">
               <RefreshCw className="w-4 h-4 text-indigo-600 animate-spin" />
-              <span>Đang render mã QR: {progress.current} / {progress.total}</span>
+              <span>
+                Đang render & kiểm tra ZXing: {progress.current} / {progress.total}
+              </span>
             </span>
             <span className="font-mono text-indigo-600">{progress.percentage}%</span>
           </div>
@@ -551,13 +660,13 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
           </div>
 
           <div className="flex items-center justify-between text-[11px] text-slate-500">
-            <span className="truncate max-w-xs">Đang xử lý: {progress.currentFilename}</span>
+            <span className="truncate max-w-xs">{progress.currentFilename}</span>
             <button
               type="button"
               onClick={cancelBatchProcessing}
               className="text-rose-600 hover:text-rose-700 font-semibold"
             >
-              Dừng lại
+              Hủy tiến trình
             </button>
           </div>
         </div>
@@ -574,20 +683,23 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
               onChange={(e) => setExportFormat(e.target.value as any)}
               className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-700 text-xs"
             >
-              <option value="png">PNG (300 DPI Siêu Nét)</option>
+              <option value="png">PNG (Độ Nét Cao)</option>
               <option value="webp">WebP (Dung Lượng Nhẹ)</option>
             </select>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="text-slate-600 font-semibold">Lưới in tem PDF:</span>
+            <span className="text-slate-600 font-semibold">Khổ tem in PDF:</span>
             <select
-              value={pdfGrid}
-              onChange={(e) => setPdfGrid(e.target.value as any)}
-              className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-700 text-xs"
+              value={selectedPdfPreset}
+              onChange={(e) => setSelectedPdfPreset(e.target.value)}
+              className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-700 text-xs max-w-xs truncate"
             >
-              <option value="3x6">Khổ A4 (18 tem / trang)</option>
-              <option value="4x8">Khổ A4 (32 tem nhỏ / trang)</option>
+              {LABEL_PRESETS.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -596,7 +708,7 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             type="button"
-            disabled={isProcessing || currentItems.length === 0}
+            disabled={isProcessing || validCount === 0}
             onClick={handleDownloadPDF}
             className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-xs sm:text-sm font-bold shadow-2xs transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
@@ -606,7 +718,7 @@ export const BulkQRManager: React.FC<BulkQRManagerProps> = ({
 
           <button
             type="button"
-            disabled={isProcessing || currentItems.length === 0}
+            disabled={isProcessing || validCount === 0}
             onClick={handleDownloadZip}
             className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-indigo-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 flex items-center justify-center gap-2"
           >

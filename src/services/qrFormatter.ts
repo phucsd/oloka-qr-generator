@@ -15,13 +15,42 @@ import {
 } from '../types';
 import { generateVietQRPayload } from './vietqrService';
 
+function escapeWifi(str: string): string {
+  return (str || '').replace(/([\\;,":])/g, '\\$1');
+}
+
+function escapeVCard(str: string): string {
+  return (str || '')
+    .replace(/\\/g, '\\\\')
+    .replace(/\r?\n/g, '\\n')
+    .replace(/,/g, '\\,')
+    .replace(/;/g, '\\;');
+}
+
+/**
+ * Converts datetime string to RFC 5545 UTC format: YYYYMMDDTHHMMSSZ
+ */
+function formatEventUtcTime(localIso: string): string {
+  if (!localIso) return '';
+  const d = new Date(localIso);
+  if (isNaN(d.getTime())) return '';
+  // Convert to true UTC representation
+  const year = d.getUTCFullYear();
+  const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  const hours = String(d.getUTCHours()).padStart(2, '0');
+  const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(d.getUTCSeconds()).padStart(2, '0');
+  return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
+}
+
 export function formatQRContent(
   type: QRType,
   data: any
 ): string {
   switch (type) {
     case 'text':
-      return typeof data === 'string' ? data : (data?.text || '');
+      return typeof data === 'string' ? data.trim() : (data?.text || '').trim();
 
     case 'url': {
       const url = typeof data === 'string' ? data.trim() : (data?.url || '').trim();
@@ -39,26 +68,32 @@ export function formatQRContent(
       const wifi = data as WiFiData;
       if (!wifi?.ssid) return '';
       const enc = wifi.encryption || 'WPA';
-      const pass = wifi.password || '';
+      const escapedSsid = escapeWifi(wifi.ssid.trim());
+      const escapedPass = escapeWifi(wifi.password || '');
       const hidden = wifi.hidden ? 'true' : 'false';
-      return `WIFI:T:${enc};S:${wifi.ssid};P:${pass};H:${hidden};;`;
+      return `WIFI:T:${enc};S:${escapedSsid};P:${escapedPass};H:${hidden};;`;
     }
 
     case 'vcard': {
       const v = data as VCardData;
-      if (!v?.fullName && !v?.phone) return '';
+      if (!v?.fullName && !v?.phone && !v?.mobile) return '';
+
+      const nameParts = (v.fullName || '').trim().split(/\s+/);
+      const lastName = nameParts.length > 1 ? nameParts[0] : '';
+      const firstName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : nameParts[0] || '';
+
       return [
         'BEGIN:VCARD',
         'VERSION:3.0',
-        `FN:${v.fullName || ''}`,
-        `N:;${v.fullName || ''};;;`,
-        v.organization ? `ORG:${v.organization}` : '',
-        v.title ? `TITLE:${v.title}` : '',
-        v.mobile ? `TEL;TYPE=CELL:${v.mobile}` : '',
-        v.phone ? `TEL;TYPE=WORK:${v.phone}` : '',
-        v.email ? `EMAIL:${v.email}` : '',
-        v.website ? `URL:${v.website}` : '',
-        v.address ? `ADR:;;${v.address};;;;` : '',
+        `FN:${escapeVCard(v.fullName || '')}`,
+        `N:${escapeVCard(lastName)};${escapeVCard(firstName)};;;`,
+        v.organization ? `ORG:${escapeVCard(v.organization)}` : '',
+        v.title ? `TITLE:${escapeVCard(v.title)}` : '',
+        v.mobile ? `TEL;TYPE=CELL:${v.mobile.replace(/[^0-9+]/g, '')}` : '',
+        v.phone ? `TEL;TYPE=WORK:${v.phone.replace(/[^0-9+]/g, '')}` : '',
+        v.email ? `EMAIL:${v.email.trim()}` : '',
+        v.website ? `URL:${v.website.trim()}` : '',
+        v.address ? `ADR:;;${escapeVCard(v.address)};;;;` : '',
         'END:VCARD',
       ]
         .filter(Boolean)
@@ -72,19 +107,19 @@ export function formatQRContent(
       if (em.subject) params.set('subject', em.subject);
       if (em.body) params.set('body', em.body);
       const query = params.toString();
-      return `mailto:${em.email}${query ? `?${query}` : ''}`;
+      return `mailto:${em.email.trim()}${query ? `?${query}` : ''}`;
     }
 
     case 'phone': {
       const ph = data as PhoneData;
       if (!ph?.phone) return '';
-      return `tel:${ph.phone.trim()}`;
+      return `tel:${ph.phone.trim().replace(/\s+/g, '')}`;
     }
 
     case 'sms': {
       const sms = data as SMSData;
       if (!sms?.phone) return '';
-      return `smsto:${sms.phone.trim()}:${sms.message || ''}`;
+      return `smsto:${sms.phone.trim().replace(/\s+/g, '')}:${sms.message || ''}`;
     }
 
     case 'whatsapp': {
@@ -98,26 +133,31 @@ export function formatQRContent(
     case 'zoom': {
       const zm = data as ZoomData;
       if (!zm?.meetingId) return '';
-      const pwdParam = zm.password ? `?pwd=${encodeURIComponent(zm.password)}` : '';
-      return `https://zoom.us/j/${zm.meetingId.replace(/\s+/g, '')}${pwdParam}`;
+      const input = zm.meetingId.trim();
+      // If user pasted a full Zoom join URL
+      if (input.startsWith('http://') || input.startsWith('https://')) {
+        return input;
+      }
+      const cleanId = input.replace(/\D/g, '');
+      return `https://zoom.us/j/${cleanId}`;
     }
 
     case 'event': {
       const ev = data as EventData;
       if (!ev?.title) return '';
-      const formatTime = (iso: string) => {
-        if (!iso) return '';
-        return iso.replace(/[-:]/g, '').replace('.000', '').substring(0, 15) + 'Z';
-      };
+      const startUtc = formatEventUtcTime(ev.startTime);
+      const endUtc = formatEventUtcTime(ev.endTime);
+
       return [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
+        'PRODID:-//Oloka QR Generator//VN',
         'BEGIN:VEVENT',
-        `SUMMARY:${ev.title}`,
-        ev.location ? `LOCATION:${ev.location}` : '',
-        ev.startTime ? `DTSTART:${formatTime(ev.startTime)}` : '',
-        ev.endTime ? `DTEND:${formatTime(ev.endTime)}` : '',
-        ev.description ? `DESCRIPTION:${ev.description}` : '',
+        `SUMMARY:${escapeVCard(ev.title)}`,
+        ev.location ? `LOCATION:${escapeVCard(ev.location)}` : '',
+        startUtc ? `DTSTART:${startUtc}` : '',
+        endUtc ? `DTEND:${endUtc}` : '',
+        ev.description ? `DESCRIPTION:${escapeVCard(ev.description)}` : '',
         'END:VEVENT',
         'END:VCALENDAR',
       ]
@@ -132,7 +172,7 @@ export function formatQRContent(
       const cmd = pp.type === 'donate' ? '_donations' : pp.type === 'cart' ? '_cart' : '_xclick';
       const params = new URLSearchParams({
         cmd,
-        business: pp.email,
+        business: pp.email.trim(),
         item_name: pp.itemName || '',
         item_number: pp.itemId || '',
         amount: pp.price || '',
@@ -145,7 +185,7 @@ export function formatQRContent(
       const loc = data as LocationData;
       if (!loc?.latitude || !loc?.longitude) return '';
       const label = loc.name ? `(${encodeURIComponent(loc.name)})` : '';
-      return `https://maps.google.com/local?q=${loc.latitude},${loc.longitude}${label}`;
+      return `https://maps.google.com/local?q=${loc.latitude.trim()},${loc.longitude.trim()}${label}`;
     }
 
     case 'social': {
@@ -174,6 +214,6 @@ export function formatQRContent(
     }
 
     default:
-      return typeof data === 'string' ? data : JSON.stringify(data);
+      return typeof data === 'string' ? data.trim() : JSON.stringify(data);
   }
 }

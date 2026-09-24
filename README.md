@@ -21,45 +21,47 @@ pinned: false
 
 ## 🌟 Tính Năng Nổi Bật Vượt Trội
 
-### 1. 🛡️ 100% Xử Lý Tại Trình Duyệt (Client-Side)
+### 1. 🛡️ 100% Xử Lý Tại Trình Duyệt (Client-Side Privacy)
 - **Bảo mật tuyệt đối**: Dữ liệu danh bạ, link nội bộ, mật khẩu WiFi và danh sách khách hàng trong file Excel **không bao giờ bị gửi lên bất kỳ máy chủ nào**.
-- **Tốc độ ánh sáng**: Tạo hàng trăm mã QR trong vài giây nhờ tận dụng sức mạnh GPU và Canvas API trên máy tính của bạn.
-- **Không bao giờ sập**: Không lo quá tải server hay nghẽn mạng như các công cụ cũ.
+- **Xử lý tức thì**: Tạo và nén hàng trăm mã QR nhanh chóng nhờ thư viện Canvas, SVG, SheetJS và JSZip chạy trực tiếp tại trình duyệt thiết bị.
+- **Không phụ thuộc backend**: Không lo quá tải server hay nghẽn mạng.
 
-### 2. 📊 Tạo Mã QR Hàng Loạt (Bulk QR Engine)
-- **Nhập nhiều dòng văn bản**: Mỗi dòng là một mã QR, tự động đánh số thứ tự file `qr_001`, `qr_002`...
+### 2. 🔍 Vòng Kiểm Thử Khả Năng Quét Tự Động (ZXing Decoder Loop)
+- **Kiểm tra scannability ngay tại chỗ**: Tích hợp bộ giải mã `@zxing/browser` chạy song song trên Canvas thực tế để xác thực camera điện thoại sẽ đọc được nội dung trước khi xuất file.
+- **Huy hiệu trạng thái**: Hiển thị nhãn xanh `Đã kiểm tra khả năng quét (ZXing PASS)` trực quan.
+- **Báo cáo kiểm tra tự động**: Tự động sinh file `bao_cao_kiem_tra.csv` bên trong file ZIP hoặc xuất Excel báo cáo tỉ lệ hợp lệ/lỗi cho từng dòng dữ liệu.
+
+### 3. 📊 Tạo Mã QR Hàng Loạt Chuẩn Xác (Bulk QR Engine)
 - **Kéo thả File Excel (.xlsx, .xls) hoặc CSV**:
-  - Hỗ trợ file danh sách hàng nghìn dòng.
-  - Tích hợp sẵn nút **"Tải File Excel Mẫu (.xlsx)"** chuẩn định dạng.
-  - **Ánh xạ cột thông minh (Smart Column Mapping)**: Tự do chọn cột dữ liệu QR, cột đặt tên file tải về, cột nhãn chữ in tem.
-  - **Bảng xem trước dữ liệu (Data Grid Preview)**: Tìm kiếm và xem trước từng mã QR trực tiếp trên giao diện.
-- **Tải về trọn bộ file `.ZIP`**: Nén file tự động kèm thanh tiến trình thời gian thực (`%`, số lượng đã xong, nút dừng lại).
-- **In Tem Nhãn PDF Khổ A4**: Tự động chia ô lưới tem nhãn (18 tem hoặc 32 tem/trang) kèm đường kẻ cắt sẵn sàng đưa vào máy in Decal/A4 dán sản phẩm.
+  - Hỗ trợ đa sheet (Multi-sheet workbook selection).
+  - Giữ nguyên số 0 ở đầu (`raw: false`) cho số tài khoản, mã SKU, số điện thoại.
+  - Tích hợp nút **"Tải File Excel Mẫu (.xlsx)"** chuẩn định dạng.
+  - **Ánh xạ cột linh hoạt**: Cột dữ liệu QR, cột đặt tên file tải về, cột nhãn chữ in tem.
+  - **Chống trùng lặp tên file**: Tự động đánh số hậu tố `_2`, `_3` tránh ghi đè file trong ZIP.
+- **Tải về file `.ZIP`**: Nén file tự động kèm thanh tiến trình thời gian thực (`%`, số lượng đã xong, nút dừng lại).
+- **In Tem Nhãn PDF Khổ A4**: Các mẫu tem decal tiêu chuẩn (18 tem 63.5x46.6mm, 30 tem, 8 tem) render bằng Canvas đảm bảo 100% font tiếng Việt không bị lỗi hiển thị.
 
-### 3. 💳 Hỗ Trợ 14+ Loại Nội Dung (Có Sẵn VietQR Napas247)
-- **Đường dẫn (URL)**
-- **VietQR / Chuyển khoản ngân hàng**: Tích hợp danh sách toàn bộ ngân hàng Việt Nam (VCB, MB, TCB, VPB, ACB, BIDV, Agribank...), tự động điền STK, tên người nhận, số tiền và nội dung chuyển tiền chuẩn Napas247.
-- **Văn bản (Text)**
-- **Mạng Wi-Fi** (WPA/WPA2/WPA3, WEP, mạng ẩn)
-- **Danh bạ vCard 3.0** (Họ tên, SĐT, công ty, email, website, địa chỉ)
-- **E-mail**, **Số điện thoại (Tel)**, **Tin nhắn SMS**, **WhatsApp**
-- **Zoom Meeting** (ID phòng, mật khẩu)
-- **Sự kiện iCalendar** (Bắt đầu, kết thúc, địa điểm)
-- **PayPal** (Buy Now, Donate, Cart)
-- **Vị trí bản đồ (Google Maps)**
-- **Mạng xã hội** (Zalo, Facebook, TikTok, Instagram, YouTube, Telegram)
+### 4. 💳 Hỗ Trợ 14+ Loại Nội Dung Chuẩn Quốc Tế & VietQR
+- **VietQR / Napas247 Chuẩn Xác**:
+  - Đúng chuẩn định danh `0208QRIBFTTA` cho tài khoản ngân hàng.
+  - Tính toán độ dài trường TLV và mã kiểm tra CRC16 trên chuỗi byte UTF-8.
+  - Tự động nạp động danh sách 55+ ngân hàng từ VietQR API với cơ chế cache 24h và fallback offline.
+- **Định Dạng Tương Thích Cao**:
+  - Wi-Fi: Escape ký tự đặc biệt theo chuẩn ZXing.
+  - vCard: Tuân thủ chuẩn RFC 6350, phân tách họ tên và escape ký tự đúng quy cách.
+  - iCalendar: Định dạng thời gian UTC `YYYYMMDDTHHMMSSZ` và khai báo PRODID.
+  - Zoom, URL, Văn bản, SMS, Email, Bản đồ, Mạng xã hội...
 
-### 4. 🎨 Bộ Tùy Biến Thiết Kế Chuyên Nghiệp
-- **Màu sắc**: Màu đơn sắc, Nền trong suốt (Transparent), **Gradient chuyển màu** (Linear / Radial) xoay góc tùy chỉnh, màu riêng biệt cho từng góc mắt (Corner Eyes).
-- **Kiểu dáng hạt**: Square, Dots, Rounded, Extra-rounded, Classy, Classy-rounded.
-- **Logo thương hiệu**: Tải logo tùy ý hoặc chọn logo có sẵn (VietQR, Zalo, Facebook, TikTok, YouTube, WiFi...). Hỗ trợ tính năng **"Xóa nền sau logo"** giúp camera quét siêu nhạy.
-- **Khung viền CTA**: Các mẫu khung "SCAN ME", "QUÉT MÃ TẠI ĐÂY", khung bong bóng, khung thẻ viền; đổi màu khung và font chữ tiếng Việt.
-- **Độ phân giải cao**: 300px đến 2000px (đạt chuẩn 300 - 600 DPI cho in offset), xuất định dạng **PNG**, **SVG Vector**, **WebP**, **PDF**.
+### 5. 🎨 Bộ Tùy Biến Thiết Kế & Xuất Vector SVG Thật
+- **Màu sắc & Gradient**: Đơn sắc, nền trong suốt, gradient chuyển màu (Linear / Radial) xoay góc tùy chỉnh, màu riêng cho từng góc mắt.
+- **Vector SVG Thật**: Sinh mã XML SVG nguyên bản với thẻ `<rect>` và `<text>`, không bao giờ lồng raster PNG vào đuôi `.svg`.
+- **Đệm Logo An Toàn**: Tạo khoảng trống đệm phía sau logo thương hiệu, bảo đảm mức độ sửa lỗi High (30%) giúp camera quét nhạy.
+- **Đóng khung viền CTA**: Khung "SCAN ME", "QUÉT MÃ TẠI ĐÂY", tùy chỉnh màu sắc và font chữ tiếng Việt.
 
-### 5. 🚀 Tối Ưu SEO Đỉnh Cao
-- Điểm Core Web Vitals **95 - 100/100**.
-- Đầy đủ 4 bộ Schema JSON-LD chuẩn Google Rich Snippets: `WebApplication`, `FAQPage` (10 câu hỏi đáp trực tiếp trên Google Search), `HowTo`, `BreadcrumbList`.
-- Hỗ trợ **PWA (Progressive Web App)**: Cài đặt ứng dụng vào máy tính hoặc điện thoại với 1 cú click.
+### 6. 🚀 Tối Ưu SEO & PWA
+- Điểm Core Web Vitals tối ưu.
+- Đầy đủ 4 bộ Schema JSON-LD: `WebApplication`, `FAQPage`, `HowTo`, `BreadcrumbList`.
+- Hỗ trợ **PWA (Progressive Web App)**: Cài đặt và sử dụng offline nhanh chóng.
 
 ---
 

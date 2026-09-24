@@ -6,10 +6,12 @@ import {
   Check,
   Sparkles,
   ShieldCheck,
+  AlertTriangle,
   FileCode2,
 } from 'lucide-react';
 import { QRDesignConfig } from '../types';
 import { downloadQRCode, renderQRToCanvas } from '../services/qrService';
+import { verifyQRCanvas, DecodeVerificationResult } from '../services/qrVerification';
 
 interface QRPreviewStickyProps {
   content: string;
@@ -22,22 +24,39 @@ export const QRPreviewSticky: React.FC<QRPreviewStickyProps> = ({ content, desig
   const [customLabel, setCustomLabel] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   const [isRendering, setIsRendering] = useState(false);
+  const [decodeResult, setDecodeResult] = useState<DecodeVerificationResult | null>(null);
+
+  const hasValidContent = !!(content && content.trim().length > 0);
 
   // Render QR to canvas whenever content, designConfig, or customLabel changes
   useEffect(() => {
     let isCurrent = true;
     setIsRendering(true);
 
+    if (!hasValidContent) {
+      if (containerRef.current) {
+        containerRef.current.innerHTML = '';
+      }
+      setDecodeResult(null);
+      setIsRendering(false);
+      return;
+    }
+
     const render = async () => {
       try {
-        const effectiveContent = content || 'https://oloka.vn';
-        const canvas = await renderQRToCanvas(effectiveContent, designConfig, customLabel || undefined);
+        const canvas = await renderQRToCanvas(content.trim(), designConfig, customLabel.trim() || undefined);
         if (!isCurrent) return;
 
         if (containerRef.current) {
           containerRef.current.innerHTML = '';
           canvas.className = 'w-full h-auto max-w-[280px] sm:max-w-[320px] rounded-2xl shadow-sm border border-slate-200/80 transition-all';
           containerRef.current.appendChild(canvas);
+        }
+
+        // Run genuine ZXing decode test
+        const verification = await verifyQRCanvas(canvas, content.trim());
+        if (isCurrent) {
+          setDecodeResult(verification);
         }
       } catch (err) {
         console.error('Error rendering preview canvas:', err);
@@ -46,21 +65,22 @@ export const QRPreviewSticky: React.FC<QRPreviewStickyProps> = ({ content, desig
       }
     };
 
-    const timer = setTimeout(render, 80);
+    const timer = setTimeout(render, 100);
     return () => {
       isCurrent = false;
       clearTimeout(timer);
     };
-  }, [content, designConfig, customLabel]);
+  }, [content, designConfig, customLabel, hasValidContent]);
 
   const handleDownload = async (format: 'png' | 'svg' | 'webp') => {
+    if (!hasValidContent) return;
     try {
       await downloadQRCode(
-        content || 'https://oloka.vn',
+        content.trim(),
         designConfig,
         format,
         filename || 'oloka_qrcode',
-        customLabel || undefined
+        customLabel.trim() || undefined
       );
     } catch (err) {
       console.error('Download error:', err);
@@ -68,11 +88,12 @@ export const QRPreviewSticky: React.FC<QRPreviewStickyProps> = ({ content, desig
   };
 
   const handleCopyToClipboard = async () => {
+    if (!hasValidContent) return;
     try {
       const canvas = await renderQRToCanvas(
-        content || 'https://oloka.vn',
+        content.trim(),
         designConfig,
-        customLabel || undefined
+        customLabel.trim() || undefined
       );
       canvas.toBlob(async (blob) => {
         if (!blob) return;
@@ -84,7 +105,7 @@ export const QRPreviewSticky: React.FC<QRPreviewStickyProps> = ({ content, desig
           setTimeout(() => setIsCopied(false), 2000);
         } catch (clipErr) {
           console.error('Clipboard error:', clipErr);
-          alert('Không thể sao chép trực tiếp vào bộ nhớ tạm trên trình duyệt này. Vui lòng tải file PNG!');
+          alert('Không thể sao chép trực tiếp vào bộ nhớ tạm trên trình duyệt này. Vui lòng bấm Tải PNG!');
         }
       }, 'image/png');
     } catch (err) {
@@ -93,41 +114,93 @@ export const QRPreviewSticky: React.FC<QRPreviewStickyProps> = ({ content, desig
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Oloka QR Code',
-          text: 'Mã QR được tạo bởi Oloka QR Generator',
-          url: window.location.href,
-        });
-      } catch (err) {
-        // User cancelled or share failed
-      }
-    } else {
-      await handleCopyToClipboard();
+    if (!hasValidContent) return;
+    try {
+      const canvas = await renderQRToCanvas(
+        content.trim(),
+        designConfig,
+        customLabel.trim() || undefined
+      );
+
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], `${filename || 'qrcode'}.png`, { type: 'image/png' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: 'Mã QR Code',
+              text: 'Mã QR tạo bởi Oloka QR Generator',
+            });
+            return;
+          } catch (e) {
+            // User cancelled share
+            return;
+          }
+        }
+
+        // Fallback if sharing files is not supported
+        handleCopyToClipboard();
+      }, 'image/png');
+    } catch (err) {
+      console.error('Share error:', err);
     }
   };
 
   return (
     <div className="sticky top-20 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 sm:p-6 space-y-5">
-      {/* Header Badge */}
+      {/* Header & Genuine Verification Badge */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
           <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
           <span>Khung Xem Trước Trực Tiếp</span>
         </div>
-        <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-semibold">
-          <ShieldCheck className="w-3 h-3 text-emerald-600" />
-          <span>Quét nhạy 100%</span>
-        </div>
+
+        {hasValidContent && decodeResult && (
+          <div
+            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
+              decodeResult.match
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                : 'bg-amber-50 border-amber-200 text-amber-700'
+            }`}
+            title={decodeResult.errorMessage || 'Mã QR giải mã thành công'}
+          >
+            {decodeResult.match ? (
+              <>
+                <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                <span>ZXing: PASS</span>
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="w-3 h-3 text-amber-600" />
+                <span>ZXing: CẢNH BÁO</span>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* QR Canvas Container */}
-      <div className="relative flex items-center justify-center p-4 bg-slate-50/70 border border-slate-200/60 rounded-2xl min-h-[280px]">
-        <div ref={containerRef} className="flex items-center justify-center" />
-        {isRendering && (
-          <div className="absolute inset-0 bg-white/50 backdrop-blur-2xs flex items-center justify-center rounded-2xl">
-            <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+      <div className="relative flex flex-col items-center justify-center p-4 bg-slate-50/70 border border-slate-200/60 rounded-2xl min-h-[280px]">
+        {hasValidContent ? (
+          <>
+            <div ref={containerRef} className="flex items-center justify-center" />
+            {isRendering && (
+              <div className="absolute inset-0 bg-white/50 backdrop-blur-2xs flex items-center justify-center rounded-2xl">
+                <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-10 px-4">
+            <div className="w-12 h-12 mx-auto rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
+              <Sparkles className="w-6 h-6" />
+            </div>
+            <p className="text-xs font-bold text-slate-700">Chưa có nội dung hợp lệ</p>
+            <p className="text-[11px] text-slate-400 mt-1">
+              Vui lòng nhập đường dẫn hoặc nội dung bên cạnh để xem trước mã QR
+            </p>
           </div>
         )}
       </div>
@@ -163,19 +236,21 @@ export const QRPreviewSticky: React.FC<QRPreviewStickyProps> = ({ content, desig
       <div className="space-y-2 pt-2 border-t border-slate-100">
         <button
           type="button"
+          disabled={!hasValidContent}
           onClick={() => handleDownload('png')}
-          className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md shadow-indigo-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
+          className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-sm shadow-md shadow-indigo-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
         >
           <Download className="w-4 h-4" />
-          <span>Tải Ảnh PNG (300 DPI Chuẩn In)</span>
+          <span>Tải Ảnh PNG Độ Nét Cao</span>
         </button>
 
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
+            disabled={!hasValidContent}
             onClick={() => handleDownload('svg')}
-            className="py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition-all flex items-center justify-center gap-1.5"
-            title="Định dạng Vector không vỡ hình"
+            className="py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 font-semibold text-xs transition-all flex items-center justify-center gap-1.5"
+            title="Định dạng Vector SVG thật, mở được trên Illustrator/CorelDRAW"
           >
             <FileCode2 className="w-3.5 h-3.5 text-indigo-600" />
             <span>Tải SVG Vector</span>
@@ -183,8 +258,9 @@ export const QRPreviewSticky: React.FC<QRPreviewStickyProps> = ({ content, desig
 
           <button
             type="button"
+            disabled={!hasValidContent}
             onClick={() => handleDownload('webp')}
-            className="py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition-all flex items-center justify-center gap-1.5"
+            className="py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 font-semibold text-xs transition-all flex items-center justify-center gap-1.5"
             title="Định dạng WebP dung lượng nhẹ"
           >
             <Download className="w-3.5 h-3.5 text-slate-500" />
@@ -196,8 +272,9 @@ export const QRPreviewSticky: React.FC<QRPreviewStickyProps> = ({ content, desig
         <div className="grid grid-cols-2 gap-2 pt-1">
           <button
             type="button"
+            disabled={!hasValidContent}
             onClick={handleCopyToClipboard}
-            className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-medium text-xs transition-all flex items-center justify-center gap-1.5"
+            className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200/80 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 font-medium text-xs transition-all flex items-center justify-center gap-1.5"
           >
             {isCopied ? (
               <>
@@ -214,11 +291,12 @@ export const QRPreviewSticky: React.FC<QRPreviewStickyProps> = ({ content, desig
 
           <button
             type="button"
+            disabled={!hasValidContent}
             onClick={handleShare}
-            className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-medium text-xs transition-all flex items-center justify-center gap-1.5"
+            className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200/80 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 font-medium text-xs transition-all flex items-center justify-center gap-1.5"
           >
             <Share2 className="w-3.5 h-3.5 text-slate-600" />
-            <span>Chia Sẻ Mã</span>
+            <span>Chia Sẻ Ảnh QR</span>
           </button>
         </div>
       </div>
