@@ -1,0 +1,61 @@
+name: Build and Deploy to GitHub Pages & Hugging Face
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Production Bundle
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+
+      # Optional: Sync to Hugging Face Spaces if HF_TOKEN is configured in GitHub Secrets
+      - name: Sync to Hugging Face Spaces (Optional)
+        if: env.HF_TOKEN != ''
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE_REPO: ${{ secrets.HF_SPACE_REPO }}
+        run: |
+          if [ -n "$HF_SPACE_REPO" ]; then
+            git config --global user.email "bot@github.com"
+            git config --global user.name "GitHub Action"
+            git clone "https://user:$HF_TOKEN@huggingface.co/spaces/$HF_SPACE_REPO" hf_repo
+            cp -r dist/* hf_repo/
+            cp README.md hf_repo/
+            cd hf_repo
+            git add .
+            git commit -m "Auto deploy from GitHub Action: ${{ github.sha }}" || echo "No changes"
+            git push origin main
+          fi

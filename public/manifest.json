@@ -1,0 +1,16 @@
+{
+  "name": "Oloka QR Code Generator - Tạo Mã QR Hàng Loạt",
+  "short_name": "Oloka QR",
+  "description": "Công cụ tạo mã QR code đơn lẻ và hàng loạt miễn phí chất lượng cao, hỗ trợ Excel, VietQR và in tem nhãn",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
