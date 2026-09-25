@@ -197,3 +197,13 @@ export async function generatePrintablePDF(
   const safeName = `${pdfFilename.replace(/[/\\?%*:|"<>]/g, '_').trim() || 'tem_nhan'}.pdf`;
   doc.save(safeName);
 }
+
+export const generateQRPdf = async (
+  items: BulkItem[],
+  config: QRDesignConfig,
+  presetId: string = 'a4-18',
+  options: Partial<PDFExportOptions> = {}
+): Promise<void> => {
+  return generatePrintablePDF(items, config, { ...DEFAULT_PDF_OPTIONS, presetId, ...options });
+};
+

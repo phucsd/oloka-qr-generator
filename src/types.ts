@@ -152,12 +152,17 @@ export interface SocialData {
   usernameOrUrl: string;
 }
 
+export type QRResultStatus = 'pending' | 'rendering' | 'validating' | 'passed' | 'repaired' | 'failed' | 'mismatch';
+
 export interface BulkItem {
   id: string;
   index: number;
   data: string;
   filename: string;
   label?: string;
-  status: 'pending' | 'success' | 'error';
+  status: QRResultStatus | 'error' | 'success';
   errorMessage?: string;
+  decodedText?: string;
+  repairDetails?: string;
 }
+
