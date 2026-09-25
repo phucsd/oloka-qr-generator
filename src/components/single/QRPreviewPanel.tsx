@@ -165,25 +165,31 @@ export const QRPreviewPanel: React.FC<QRPreviewPanelProps> = ({
     <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 space-y-4">
       {/* Top Header & Validation Badge */}
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-          Xem Trước Trực Tiếp
+        <h3 className="text-xs font-semibold text-slate-700">
+          Xem trước trực tiếp
         </h3>
 
         {/* 3-State Quality Gate Badge */}
         {hasValidContent && (
           <div>
             {isRendering ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-normal bg-slate-100 text-slate-600 border border-slate-200">
                 <Loader2 className="w-3 h-3 animate-spin text-slate-500" />
                 <span>Đang kiểm tra...</span>
               </span>
             ) : isScanPassed ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/80"
+                title="Đã xác thực khả năng quét thành công"
+              >
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                 <span>✓ Scan verified</span>
               </span>
             ) : isScanFailed ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+              <span
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-200/80"
+                title="Mã QR không quét được bằng camera"
+              >
                 <XCircle className="w-3.5 h-3.5 text-rose-600" />
                 <span>✕ Scan failed</span>
               </span>
@@ -205,7 +211,7 @@ export const QRPreviewPanel: React.FC<QRPreviewPanelProps> = ({
           </>
         ) : (
           <div className="text-center py-10 px-4">
-            <p className="text-xs font-semibold text-slate-700">Chưa có nội dung hợp lệ</p>
+            <p className="text-xs font-medium text-slate-700">Chưa có nội dung hợp lệ</p>
             <p className="text-[11px] text-slate-400 mt-1">
               Nhập nội dung ở khung bên cạnh để xem trước mã QR
             </p>
@@ -215,22 +221,22 @@ export const QRPreviewPanel: React.FC<QRPreviewPanelProps> = ({
 
       {/* Helpful Advice if Scan Failed */}
       {isScanFailed && (
-        <div className="p-3 bg-rose-50/80 border border-rose-200 rounded-xl space-y-2 text-xs">
-          <div className="font-bold text-rose-900 flex items-center gap-1.5">
+        <div className="p-3 bg-rose-50/80 border border-rose-200/80 rounded-xl space-y-2 text-xs">
+          <div className="font-semibold text-rose-900 flex items-center gap-1.5">
             <XCircle className="w-4 h-4 text-rose-600 shrink-0" />
-            <span>Mã QR không quét được bằng camera!</span>
+            <span>Mã QR khó nhận diện</span>
           </div>
           <p className="text-slate-600 text-[11px] leading-relaxed">
-            Nguyên nhân thường do logo quá lớn che mất dữ liệu, độ tương phản màu quá thấp, hoặc viền lề (quiet zone) quá hẹp.
+            Nguyên nhân thường do logo quá lớn, độ tương phản màu thấp hoặc lề quá hẹp.
           </p>
           {onAutoRepair && (
             <button
               type="button"
               onClick={onAutoRepair}
-              className="w-full mt-1 py-1.5 px-3 bg-white border border-rose-300 hover:bg-rose-100/60 text-rose-700 font-bold rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5"
+              className="w-full mt-1 py-1.5 px-3 bg-white border border-rose-300 hover:bg-rose-100/60 text-rose-700 font-medium rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5"
             >
               <Wrench className="w-3.5 h-3.5 text-rose-600" />
-              <span>Tự Động Sửa Lỗi (Safe Auto-Repair)</span>
+              <span>Tự động sửa lỗi (Safe Auto-Repair)</span>
             </button>
           )}
         </div>
@@ -243,10 +249,10 @@ export const QRPreviewPanel: React.FC<QRPreviewPanelProps> = ({
             type="button"
             disabled={!hasValidContent}
             onClick={() => handleDownload(downloadFormat)}
-            className="flex-1 py-2.5 px-4 rounded-l-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 px-4 rounded-l-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-xs sm:text-sm shadow-xs transition-all flex items-center justify-center gap-2"
           >
             <Download className="w-4 h-4" />
-            <span>Tải Về {downloadFormat.toUpperCase()}</span>
+            <span>Tải về {downloadFormat.toUpperCase()}</span>
           </button>
 
           <button
@@ -322,7 +328,7 @@ export const QRPreviewPanel: React.FC<QRPreviewPanelProps> = ({
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5 text-slate-500" />
-                <span>Sao Chép</span>
+                <span>Sao chép</span>
               </>
             )}
           </button>
@@ -334,7 +340,7 @@ export const QRPreviewPanel: React.FC<QRPreviewPanelProps> = ({
             className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200/80 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 font-medium text-xs transition-colors flex items-center justify-center gap-1.5"
           >
             <Share2 className="w-3.5 h-3.5 text-slate-500" />
-            <span>Chia Sẻ</span>
+            <span>Chia sẻ</span>
           </button>
         </div>
 

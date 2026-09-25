@@ -85,47 +85,47 @@ export const SEOArticle: React.FC = () => {
           <Sparkles className="w-3.5 h-3.5" />
           <span>Cẩm Nang Hướng Dẫn & Tối Ưu QR Code 2026</span>
         </div>
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">
           Giải Pháp Tạo Mã QR Hàng Loạt Miễn Phí Chuyên Nghiệp Nhất
         </h2>
-        <p className="text-base text-slate-600 leading-relaxed">
+        <p className="text-base text-slate-600 leading-relaxed font-normal">
           Trong kỷ nguyên số hóa và thương mại đa kênh hiện nay, <strong>mã QR (Quick Response Code)</strong> đã trở thành cầu nối không thể thiếu giữa thế giới vật lý và thế giới trực tuyến. Tuy nhiên, việc tạo từng mã QR thủ công khi bạn có hàng trăm sản phẩm, hàng nghìn khách mời hội nghị hay hàng loạt tem nhãn kho hàng là một công việc tiêu tốn rất nhiều thời gian và dễ xảy ra nhầm lẫn. <strong>Oloka QR Generator</strong> ra đời nhằm cung cấp một công cụ tạo mã QR code hàng loạt mạnh mẽ, bảo mật tuyệt đối và hoàn toàn miễn phí.
         </p>
       </section>
 
       {/* 3 Steps Guide (HowTo) */}
       <section id="howto-create" className="space-y-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+        <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 flex items-center gap-2">
           <FileCheck className="w-6 h-6 text-indigo-600" />
           <span>Hướng Dẫn 3 Bước Tạo Hàng Trăm Mã QR Từ File Excel Trong 1 Phút</span>
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white font-extrabold flex items-center justify-center text-lg shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white font-semibold flex items-center justify-center text-lg shadow-2xs">
               1
             </div>
-            <h3 className="text-base font-bold text-slate-900">Chuẩn Bị Dữ Liệu Excel / CSV</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <h3 className="text-base font-semibold text-slate-900">Chuẩn Bị Dữ Liệu Excel / CSV</h3>
+            <p className="text-xs text-slate-600 leading-relaxed font-normal">
               Tải file Excel mẫu chuẩn (.xlsx) từ công cụ, điền danh sách đường dẫn, mã SKU hoặc nội dung cần tạo. Bạn cũng có thể chọn cột đặt tên file tải về và cột nhãn in tem.
             </p>
           </div>
 
           <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white font-extrabold flex items-center justify-center text-lg shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white font-semibold flex items-center justify-center text-lg shadow-2xs">
               2
             </div>
-            <h3 className="text-base font-bold text-slate-900">Tùy Biến Thiết Kế Thương Hiệu</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <h3 className="text-base font-semibold text-slate-900">Tùy Biến Thiết Kế Thương Hiệu</h3>
+            <p className="text-xs text-slate-600 leading-relaxed font-normal">
               Chọn màu sắc đồng bộ nhận diện (đơn sắc hoặc gradient), đổi kiểu dáng hạt tròn/vuông, tải logo doanh nghiệp có chế độ xóa nền tự động và chọn khung viền "QUÉT TÔI" bắt mắt.
             </p>
           </div>
 
           <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white font-extrabold flex items-center justify-center text-lg shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white font-semibold flex items-center justify-center text-lg shadow-2xs">
               3
             </div>
-            <h3 className="text-base font-bold text-slate-900">Tải File ZIP Hoặc In Tem A4</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <h3 className="text-base font-semibold text-slate-900">Tải File ZIP Hoặc In Tem A4</h3>
+            <p className="text-xs text-slate-600 leading-relaxed font-normal">
               Bấm nút "Tạo & Tải Về File ZIP" để nhận trọn bộ ảnh PNG/WebP được đặt tên tự động chuẩn xác, hoặc chọn "In Tem Nhãn PDF" để in ngay trên các tờ giấy decal khổ A4.
             </p>
           </div>

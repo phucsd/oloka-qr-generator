@@ -173,7 +173,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
       {/* 1. Website URL */}
       {selectedType === 'url' && (
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <label className="block text-xs font-medium text-slate-700 mb-1">
             Đường Dẫn Website (URL)
           </label>
           <input
@@ -190,7 +190,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
       {selectedType === 'text' && (
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="block text-xs font-semibold text-slate-700">
+            <label className="block text-xs font-medium text-slate-700">
               Nội Dung Văn Bản
             </label>
             <button
@@ -223,7 +223,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-medium text-slate-700 mb-1">
                 Ngân Hàng Thụ Hưởng ({bankList.length})
               </label>
               <select
@@ -240,7 +240,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-medium text-slate-700 mb-1">
                 Số Tài Khoản <span className="text-rose-500">*</span>
               </label>
               <input
@@ -255,7 +255,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-medium text-slate-700 mb-1">
                 Tên Chủ Tài Khoản (Không dấu)
               </label>
               <input
@@ -268,7 +268,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-medium text-slate-700 mb-1">
                 Số Tiền (VNĐ - Tùy chọn)
               </label>
               <input
@@ -282,7 +282,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-medium text-slate-700 mb-1">
               Nội Dung Chuyển Khoản (Tùy chọn)
             </label>
             <input
@@ -300,7 +300,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
       {selectedType === 'wifi' && (
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-medium text-slate-700 mb-1">
               Tên Mạng Wi-Fi (SSID)
             </label>
             <input
@@ -314,7 +314,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-medium text-slate-700 mb-1">
                 Mật Khẩu Wi-Fi
               </label>
               <input
@@ -327,7 +327,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-medium text-slate-700 mb-1">
                 Chuẩn Bảo Mật
               </label>
               <select
@@ -361,7 +361,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Họ và Tên</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Họ và Tên</label>
               <input
                 type="text"
                 value={vcard.fullName}
@@ -371,7 +371,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Công Ty / Tổ Chức</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Công Ty / Tổ Chức</label>
               <input
                 type="text"
                 value={vcard.organization}
@@ -384,7 +384,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Chức Danh</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Chức Danh</label>
               <input
                 type="text"
                 value={vcard.title}
@@ -394,7 +394,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">SĐT Di Động</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">SĐT Di Động</label>
               <input
                 type="tel"
                 value={vcard.mobile}
@@ -404,7 +404,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Email</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Email</label>
               <input
                 type="email"
                 value={vcard.email}
@@ -417,7 +417,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Website</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Website</label>
               <input
                 type="text"
                 value={vcard.website}
@@ -427,7 +427,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Địa Chỉ</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Địa Chỉ</label>
               <input
                 type="text"
                 value={vcard.address}
@@ -444,7 +444,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
       {selectedType === 'email' && (
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Email Người Nhận</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">Email Người Nhận</label>
             <input
               type="email"
               value={email.email}
@@ -454,7 +454,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Tiêu Đề Thư</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">Tiêu Đề Thư</label>
             <input
               type="text"
               value={email.subject}
@@ -464,7 +464,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Nội Dung Thư</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">Nội Dung Thư</label>
             <textarea
               rows={3}
               value={email.body}
@@ -479,7 +479,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
       {/* 7. Phone */}
       {selectedType === 'phone' && (
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <label className="block text-xs font-medium text-slate-700 mb-1">
             Số Điện Thoại Gọi Trực Tiếp
           </label>
           <input
@@ -496,7 +496,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
       {selectedType === 'sms' && (
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Số Điện Thoại</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">Số Điện Thoại</label>
             <input
               type="tel"
               value={sms.phone}
@@ -506,7 +506,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Nội Dung Tin Nhắn</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">Nội Dung Tin Nhắn</label>
             <textarea
               rows={2}
               value={sms.message}
@@ -522,7 +522,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
       {selectedType === 'whatsapp' && (
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-medium text-slate-700 mb-1">
               Số Điện Thoại (Kèm mã quốc gia, ví dụ 84)
             </label>
             <input
@@ -534,7 +534,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Nội Dung Lời Nhắn</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">Nội Dung Lời Nhắn</label>
             <textarea
               rows={2}
               value={whatsapp.message}
@@ -549,7 +549,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
       {/* 10. Zoom */}
       {selectedType === 'zoom' && (
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <label className="block text-xs font-medium text-slate-700 mb-1">
             Đường Dẫn Tham Gia Họp Zoom (Join URL) hoặc Meeting ID
           </label>
           <input
@@ -566,7 +566,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
       {selectedType === 'event' && (
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Tên Sự Kiện</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">Tên Sự Kiện</label>
             <input
               type="text"
               value={event.title}
@@ -577,7 +577,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Bắt Đầu (Giờ địa phương)</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Bắt Đầu (Giờ địa phương)</label>
               <input
                 type="datetime-local"
                 value={event.startTime}
@@ -586,7 +586,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Kết Thúc (Giờ địa phương)</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Kết Thúc (Giờ địa phương)</label>
               <input
                 type="datetime-local"
                 value={event.endTime}
@@ -596,7 +596,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
             </div>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Địa Điểm Tổ Chức</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">Địa Điểm Tổ Chức</label>
             <input
               type="text"
               value={event.location}
@@ -613,7 +613,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Email PayPal</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Email PayPal</label>
               <input
                 type="email"
                 value={paypal.email}
@@ -623,7 +623,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Loại Thanh Toán</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Loại Thanh Toán</label>
               <select
                 value={paypal.type}
                 onChange={(e) => setPaypal({ ...paypal, type: e.target.value as any })}
@@ -637,7 +637,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Tên Hàng Hóa</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Tên Hàng Hóa</label>
               <input
                 type="text"
                 value={paypal.itemName}
@@ -647,7 +647,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Giá Tiền</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Giá Tiền</label>
               <input
                 type="number"
                 value={paypal.price}
@@ -664,7 +664,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
       {selectedType === 'location' && (
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Tên Địa Điểm</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">Tên Địa Điểm</label>
             <input
               type="text"
               value={location.name}
@@ -675,7 +675,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Vĩ Độ (Latitude)</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Vĩ Độ (Latitude)</label>
               <input
                 type="text"
                 value={location.latitude}
@@ -685,7 +685,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Kinh Độ (Longitude)</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Kinh Độ (Longitude)</label>
               <input
                 type="text"
                 value={location.longitude}
@@ -702,7 +702,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
       {selectedType === 'social' && (
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Nền Tảng Mạng Xã Hội</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">Nền Tảng Mạng Xã Hội</label>
             <select
               value={social.platform}
               onChange={(e) => setSocial({ ...social, platform: e.target.value as any })}
@@ -717,7 +717,7 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-medium text-slate-700 mb-1">
               Username hoặc Số Điện Thoại
             </label>
             <input

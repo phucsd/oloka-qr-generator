@@ -36,10 +36,12 @@ export interface FrameConfig {
   font: string;
 }
 
+export type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H';
+
 export interface QRDesignConfig {
   size: number;
   margin: number;
-  errorCorrectionLevel: 'L' | 'M' | 'Q' | 'H';
+  errorCorrectionLevel: ErrorCorrectionLevel;
   // Foreground
   fgColorType: 'solid' | 'gradient';
   fgColor: string;

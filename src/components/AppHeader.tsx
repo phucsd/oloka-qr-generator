@@ -62,9 +62,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 role="tab"
                 aria-selected={activeTab === 'single'}
                 onClick={() => setActiveTab('single')}
-                className={`px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all ${
+                className={`px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all ${
                   activeTab === 'single'
-                    ? 'bg-white text-indigo-600 shadow-xs'
+                    ? 'bg-white text-indigo-600 font-semibold shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -75,9 +75,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 role="tab"
                 aria-selected={activeTab === 'bulk'}
                 onClick={() => setActiveTab('bulk')}
-                className={`px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all ${
+                className={`px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all ${
                   activeTab === 'bulk'
-                    ? 'bg-white text-indigo-600 shadow-xs'
+                    ? 'bg-white text-indigo-600 font-semibold shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -91,22 +91,22 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 <button
                   type="button"
                   onClick={onOpenTemplates}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
                   title="Xem các mẫu thiết kế"
                 >
-                  <Palette className="w-4 h-4 text-indigo-600" />
-                  <span className="hidden sm:inline">Mẫu Thiết Kế</span>
+                  <Palette className="w-3.5 h-3.5 text-indigo-600" />
+                  <span className="hidden sm:inline">Mẫu thiết kế</span>
                 </button>
               )}
 
               <button
                 type="button"
                 onClick={() => setShowHelpModal(true)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
                 title="Trợ giúp & Thông tin"
               >
-                <HelpCircle className="w-4 h-4 text-slate-500" />
-                <span className="hidden sm:inline">Trợ Giúp</span>
+                <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
+                <span className="hidden sm:inline">Trợ giúp</span>
               </button>
             </div>
           </div>
@@ -123,7 +123,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <QrCode className="w-5 h-5 text-indigo-600" />
-                <h3 className="text-base font-bold text-slate-900">Về Oloka QR Studio</h3>
+                <h3 className="text-base font-semibold text-slate-900">Về Oloka QR Studio</h3>
               </div>
               <button
                 type="button"
@@ -138,7 +138,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
                 <Shield className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
                 <div>
-                  <p className="font-semibold text-slate-900">Bảo mật 100% Client-Side</p>
+                  <p className="font-medium text-slate-900">Bảo mật 100% Client-Side</p>
                   <p className="text-slate-500 mt-0.5">Mọi thao tác đọc file Excel, render mã và nén ZIP đều thực thi trực tiếp trên trình duyệt của bạn.</p>
                 </div>
               </div>
@@ -146,7 +146,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
                 <Cpu className="w-4 h-4 text-indigo-600 mt-0.5 shrink-0" />
                 <div>
-                  <p className="font-semibold text-slate-900">Kiểm thử scannability bằng ZXing</p>
+                  <p className="font-medium text-slate-900">Kiểm thử scannability bằng ZXing</p>
                   <p className="text-slate-500 mt-0.5">Tích hợp bộ giải mã quét thử trực tiếp trên Canvas trước khi xuất file để đảm bảo tính khả dụng.</p>
                 </div>
               </div>
@@ -156,17 +156,17 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               <button
                 type="button"
                 onClick={handleInstallPWA}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200/80 rounded-xl transition-colors"
+                className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200/80 rounded-xl transition-colors"
               >
                 <Download className="w-4 h-4 text-indigo-600" />
-                <span>Cài Đặt Ứng Dụng (PWA)</span>
+                <span>Cài đặt ứng dụng (PWA)</span>
               </button>
 
               <a
                 href="https://github.com/phucsd/oloka-qr-generator"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-colors"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-colors"
               >
                 <span>GitHub</span>
                 <ExternalLink className="w-3.5 h-3.5" />

@@ -12,14 +12,14 @@ export const Footer: React.FC = () => {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-cyan-400 flex items-center justify-center text-white shadow-xs">
                 <QrCode className="w-5 h-5" />
               </div>
-              <span className="text-lg font-black tracking-tight text-slate-900">
+              <span className="text-lg font-bold tracking-tight text-slate-900">
                 Oloka QR Generator
               </span>
             </div>
-            <p className="text-xs text-slate-600 max-w-sm leading-relaxed">
+            <p className="text-xs text-slate-600 max-w-sm leading-relaxed font-normal">
               Nền tảng tạo mã QR đơn lẻ và hàng loạt miễn phí tốt nhất 2026. Xử lý 100% tại Client-Side, bảo mật tuyệt đối dữ liệu người dùng, hỗ trợ Excel, VietQR và in tem nhãn trực tiếp.
             </p>
-            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg w-fit">
+            <div className="flex items-center gap-2 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-3 py-1.5 rounded-lg w-fit">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>Không lưu dữ liệu trên máy chủ • Bảo mật 100%</span>
             </div>
@@ -27,27 +27,27 @@ export const Footer: React.FC = () => {
 
           {/* Quick links */}
           <div>
-            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">
-              Tính Năng Nổi Bật
+            <h4 className="text-xs font-semibold text-slate-800 mb-3">
+              Tính năng nổi bật
             </h4>
             <ul className="space-y-2 text-xs text-slate-600">
               <li>
-                <a href="#bulk" className="hover:text-indigo-600 transition-colors">
+                <a href="#main-app" className="hover:text-indigo-600 transition-colors">
                   Tạo mã QR từ file Excel
                 </a>
               </li>
               <li>
-                <a href="#single" className="hover:text-indigo-600 transition-colors">
+                <a href="#main-app" className="hover:text-indigo-600 transition-colors">
                   Tạo mã VietQR Napas247
                 </a>
               </li>
               <li>
-                <a href="#customize" className="hover:text-indigo-600 transition-colors">
+                <a href="#main-app" className="hover:text-indigo-600 transition-colors">
                   Tùy biến Gradient & Chèn Logo
                 </a>
               </li>
               <li>
-                <a href="#bulk" className="hover:text-indigo-600 transition-colors">
+                <a href="#main-app" className="hover:text-indigo-600 transition-colors">
                   Xuất file ZIP & Tem nhãn PDF A4
                 </a>
               </li>
@@ -56,13 +56,13 @@ export const Footer: React.FC = () => {
 
           {/* Deployment & Resources */}
           <div>
-            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">
-              Mã Nguồn & Triển Khai
+            <h4 className="text-xs font-semibold text-slate-800 mb-3">
+              Mã nguồn & Triển khai
             </h4>
             <ul className="space-y-2 text-xs text-slate-600">
               <li>
                 <a
-                  href="https://huggingface.co/spaces"
+                  href="https://huggingface.co/spaces/phucsd/oloka-qr-generator"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
@@ -73,7 +73,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <a
-                  href="https://github.com"
+                  href="https://github.com/phucsd/oloka-qr-generator"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 hover:text-indigo-600 transition-colors"

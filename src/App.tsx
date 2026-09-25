@@ -24,10 +24,10 @@ export const App: React.FC = () => {
         {/* Workspace Intro Header (Compact, no giant marketing hero) */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-200/70 pb-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              {activeTab === 'single' ? 'Tạo Mã QR Đơn Lẻ' : 'Tạo Mã QR Hàng Loạt Từ Excel / CSV'}
+            <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
+              {activeTab === 'single' ? 'Tạo mã QR đơn lẻ' : 'Tạo mã QR hàng loạt từ Excel / CSV'}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-500 font-normal mt-0.5">
               Xử lý 100% tại trình duyệt, bảo mật dữ liệu tuyệt đối, hỗ trợ VietQR và in tem nhãn A4
             </p>
           </div>
@@ -53,8 +53,8 @@ export const App: React.FC = () => {
         {/* Clear Visual Divider Before Educational / SEO Section */}
         <div className="pt-12 pb-4">
           <div className="border-t border-slate-200 text-center relative">
-            <span className="bg-slate-50 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest relative -top-2.5">
-              Cẩm Nang Hướng Dẫn & Câu Hỏi Thường Gặp
+            <span className="bg-slate-50 px-4 text-xs font-medium text-slate-400 uppercase tracking-wider relative -top-2.5">
+              Cẩm nang hướng dẫn & Câu hỏi thường gặp
             </span>
           </div>
         </div>

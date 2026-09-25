@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Palette, Image as ImageIcon, Frame, Sliders, Bookmark, Check, Trash2 } from 'lucide-react';
+import { Palette, Image as ImageIcon, Frame, SlidersHorizontal, Bookmark, Check, Trash2 } from 'lucide-react';
 import { QRDesignConfig } from '../../types';
 import { StylePanel } from './StylePanel';
 import { LogoPanel } from './LogoPanel';
@@ -71,14 +71,14 @@ export const DesignTabs: React.FC<DesignTabsProps> = ({ config, onChange }) => {
             role="tab"
             aria-selected={activeTab === 'style'}
             onClick={() => setActiveTab('style')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all ${
               activeTab === 'style'
-                ? 'bg-white text-indigo-600 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white text-indigo-700 font-semibold shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 font-medium'
             }`}
           >
             <Palette className="w-3.5 h-3.5" />
-            <span>Giao Diện</span>
+            <span>Giao diện</span>
           </button>
 
           <button
@@ -86,10 +86,10 @@ export const DesignTabs: React.FC<DesignTabsProps> = ({ config, onChange }) => {
             role="tab"
             aria-selected={activeTab === 'logo'}
             onClick={() => setActiveTab('logo')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all ${
               activeTab === 'logo'
-                ? 'bg-white text-indigo-600 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white text-indigo-700 font-semibold shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 font-medium'
             }`}
           >
             <ImageIcon className="w-3.5 h-3.5" />
@@ -102,14 +102,14 @@ export const DesignTabs: React.FC<DesignTabsProps> = ({ config, onChange }) => {
             role="tab"
             aria-selected={activeTab === 'frame'}
             onClick={() => setActiveTab('frame')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all ${
               activeTab === 'frame'
-                ? 'bg-white text-indigo-600 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white text-indigo-700 font-semibold shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 font-medium'
             }`}
           >
             <Frame className="w-3.5 h-3.5" />
-            <span>Khung Viền</span>
+            <span>Khung</span>
             {config.frame.type !== 'none' && <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" />}
           </button>
 
@@ -118,14 +118,14 @@ export const DesignTabs: React.FC<DesignTabsProps> = ({ config, onChange }) => {
             role="tab"
             aria-selected={activeTab === 'advanced'}
             onClick={() => setActiveTab('advanced')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all ${
               activeTab === 'advanced'
-                ? 'bg-white text-indigo-600 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white text-indigo-700 font-semibold shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 font-medium'
             }`}
           >
-            <Sliders className="w-3.5 h-3.5" />
-            <span>Nâng Cao</span>
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span>Nâng cao</span>
           </button>
         </div>
 
@@ -134,11 +134,11 @@ export const DesignTabs: React.FC<DesignTabsProps> = ({ config, onChange }) => {
           <button
             type="button"
             onClick={() => setShowSaveInput(!showSaveInput)}
-            className="flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 px-2 py-1 rounded-lg hover:bg-indigo-50/50 transition-colors"
+            className="flex items-center gap-1 text-[11px] font-medium text-indigo-600 hover:text-indigo-700 px-2 py-1 rounded-lg hover:bg-indigo-50/50 transition-colors"
             title="Lưu mẫu thiết kế này"
           >
             <Bookmark className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Lưu Mẫu</span>
+            <span className="hidden sm:inline">Lưu mẫu</span>
           </button>
         </div>
       </div>

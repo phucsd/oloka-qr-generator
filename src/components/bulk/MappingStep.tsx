@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, ArrowRight, AlertCircle, Eye, CheckCircle2, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, AlertCircle, CheckCircle2, X } from 'lucide-react';
 import { ExcelWorkbookInfo } from '../../services/excelService';
 import { BulkItem } from '../../types';
 
@@ -108,7 +108,6 @@ export const MappingStep: React.FC<MappingStepProps> = ({
   const previewSample = allItems.slice(0, 10);
 
   const handleProceed = () => {
-    // Pass valid items to next step
     onContinue(allItems);
   };
 
@@ -118,25 +117,25 @@ export const MappingStep: React.FC<MappingStepProps> = ({
     <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 sm:p-7 space-y-6">
       {/* Top Title */}
       <div className="border-b border-slate-100 pb-4">
-        <h2 className="text-base sm:text-lg font-bold text-slate-900">
-          Bước 2: Ánh Xạ Cột & Xem Trước Dữ Liệu
+        <h2 className="text-base sm:text-lg font-semibold text-slate-900">
+          Bước 2: Ánh xạ & Xem trước
         </h2>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Chỉ định cột chứa dữ liệu QR, tên file tải về và nhãn chữ in tem
+        <p className="text-xs text-slate-500 font-normal mt-0.5">
+          Chỉ định cột dữ liệu QR, tên file và nhãn in tem
         </p>
       </div>
 
-      {/* Column Selectors (for File mode) */}
+      {/* Column Selectors with Visual Connection */}
       {dataSourceType === 'file' && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-slate-50/70 border border-slate-200/80 rounded-2xl">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-slate-50/80 border border-slate-200/80 rounded-2xl">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Cột Nội Dung QR <span className="text-rose-500">*</span>
+            <label className="block text-xs font-medium text-slate-700 mb-1">
+              Cột nội dung QR <span className="text-rose-500">*</span>
             </label>
             <select
               value={contentCol}
               onChange={(e) => setContentCol(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:ring-2 focus:ring-indigo-500/20"
             >
               <option value="">-- Chọn cột nội dung --</option>
               {headers.map((h) => (
@@ -145,17 +144,17 @@ export const MappingStep: React.FC<MappingStepProps> = ({
                 </option>
               ))}
             </select>
-            <p className="text-[10px] text-slate-400 mt-1">Đường link, mã sản phẩm hoặc text</p>
+            <p className="text-[10px] text-slate-400 mt-1">Đường link, mã sản phẩm hoặc văn bản</p>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Cột Tên File Tải Về
+            <label className="block text-xs font-medium text-slate-700 mb-1">
+              Cột tên file
             </label>
             <select
               value={filenameCol}
               onChange={(e) => setFilenameCol(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500/20 font-normal"
             >
               <option value="">(Tự động đặt tên qr_001, qr_002...)</option>
               {headers.map((h) => (
@@ -168,13 +167,13 @@ export const MappingStep: React.FC<MappingStepProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Cột Nhãn In Tem Decal
+            <label className="block text-xs font-medium text-slate-700 mb-1">
+              Cột nhãn in tem
             </label>
             <select
               value={labelCol}
               onChange={(e) => setLabelCol(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500/20 font-normal"
             >
               <option value="">(Không in nhãn chữ dưới QR)</option>
               {headers.map((h) => (
@@ -189,9 +188,9 @@ export const MappingStep: React.FC<MappingStepProps> = ({
       )}
 
       {/* Validation Summary Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 bg-slate-50/80 border border-slate-100 rounded-xl text-xs">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-emerald-700 font-semibold">
+          <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             <span>{validCount.toLocaleString()} mã sẵn sàng</span>
           </div>
@@ -200,7 +199,7 @@ export const MappingStep: React.FC<MappingStepProps> = ({
             <button
               type="button"
               onClick={() => setShowErrorDrawer(true)}
-              className="flex items-center gap-1 text-rose-600 hover:text-rose-700 font-semibold bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-200 transition-colors"
+              className="flex items-center gap-1 text-rose-600 hover:text-rose-700 font-medium bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-200 transition-colors"
             >
               <AlertCircle className="w-3.5 h-3.5" />
               <span>{errorCount} dòng lỗi (Xem chi tiết)</span>
@@ -208,21 +207,21 @@ export const MappingStep: React.FC<MappingStepProps> = ({
           )}
         </div>
 
-        <span className="text-slate-400 text-[11px]">
-          Hiển thị xem trước 10 dòng đầu tiên của tổng số {allItems.length.toLocaleString()} dòng
+        <span className="text-slate-400 text-[11px] font-normal">
+          Xem trước 10 dòng đầu của tổng số {allItems.length.toLocaleString()} dòng
         </span>
       </div>
 
-      {/* Preview Table (10 rows max) */}
-      <div className="overflow-x-auto rounded-xl border border-slate-200">
+      {/* Preview Table (10 rows max) with Status Chips */}
+      <div className="overflow-x-auto rounded-xl border border-slate-200/90">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-50/80 text-slate-700 font-bold border-b border-slate-200">
+          <thead className="bg-slate-50/80 text-slate-600 font-medium border-b border-slate-200">
             <tr>
               <th className="py-2.5 px-3 w-12 text-center">#</th>
-              <th className="py-2.5 px-3">Nội Dung Mã QR</th>
-              <th className="py-2.5 px-3">Tên File Sẽ Tải Về</th>
-              <th className="py-2.5 px-3">Nhãn In Kèm</th>
-              <th className="py-2.5 px-3 w-20 text-center">Trạng Thái</th>
+              <th className="py-2.5 px-3">Nội dung</th>
+              <th className="py-2.5 px-3">Tên file</th>
+              <th className="py-2.5 px-3">Nhãn in</th>
+              <th className="py-2.5 px-3 w-28 text-center">Trạng thái</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -236,9 +235,13 @@ export const MappingStep: React.FC<MappingStepProps> = ({
                 <td className="py-2 px-3 text-slate-600 truncate">{item.label || <span className="text-slate-300">-</span>}</td>
                 <td className="py-2 px-3 text-center">
                   {item.data ? (
-                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" title="Hợp lệ" />
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-50 text-emerald-700">
+                      ✓ Sẵn sàng
+                    </span>
                   ) : (
-                    <span className="inline-block w-2 h-2 rounded-full bg-rose-500" title="Lỗi rỗng" />
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-rose-50 text-rose-700">
+                      ✕ Trống
+                    </span>
                   )}
                 </td>
               </tr>
@@ -254,8 +257,8 @@ export const MappingStep: React.FC<MappingStepProps> = ({
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-5 h-5 text-rose-600" />
-                <h3 className="text-sm font-bold text-slate-900">
-                  Danh Sách {errorCount} Dòng Lỗi Dữ Liệu
+                <h3 className="text-sm font-semibold text-slate-900">
+                  {errorCount} dòng dữ liệu bị lỗi
                 </h3>
               </div>
               <button
@@ -267,7 +270,7 @@ export const MappingStep: React.FC<MappingStepProps> = ({
               </button>
             </div>
 
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 font-normal">
               Các dòng này có nội dung mã QR bị trống nên hệ thống sẽ tự động bỏ qua khi tạo file ảnh:
             </p>
 
@@ -277,8 +280,8 @@ export const MappingStep: React.FC<MappingStepProps> = ({
                   key={err.id}
                   className="p-2.5 rounded-lg bg-rose-50/70 border border-rose-100 flex items-center justify-between"
                 >
-                  <span className="font-semibold text-rose-900">Dòng #{err.index}</span>
-                  <span className="text-rose-600 text-[11px]">{err.errorMessage}</span>
+                  <span className="font-medium text-rose-900">Dòng #{err.index}</span>
+                  <span className="text-rose-600 text-[11px] font-normal">{err.errorMessage}</span>
                 </div>
               ))}
             </div>
@@ -287,7 +290,7 @@ export const MappingStep: React.FC<MappingStepProps> = ({
               <button
                 type="button"
                 onClick={() => setShowErrorDrawer(false)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs"
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl text-xs"
               >
                 Đóng
               </button>
@@ -301,19 +304,19 @@ export const MappingStep: React.FC<MappingStepProps> = ({
         <button
           type="button"
           onClick={onBack}
-          className="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors flex items-center gap-1.5"
+          className="px-4 py-2.5 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors flex items-center gap-1.5"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Quay Lại</span>
+          <span>Quay lại</span>
         </button>
 
         <button
           type="button"
           disabled={validCount === 0}
           onClick={handleProceed}
-          className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition-all flex items-center gap-2"
+          className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-xs sm:text-sm rounded-xl shadow-xs transition-all flex items-center gap-1.5"
         >
-          <span>Tiếp Tục (Chọn Thiết Kế)</span>
+          <span>Tiếp tục</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>
