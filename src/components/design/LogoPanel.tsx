@@ -8,13 +8,13 @@ interface LogoPanelProps {
 }
 
 const PRESET_LOGOS = [
-  { name: 'VietQR', url: 'https://api.vietqr.io/img/vietqr-ico.png' },
-  { name: 'Zalo', url: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg' },
-  { name: 'Facebook', url: 'https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg' },
-  { name: 'TikTok', url: 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg' },
-  { name: 'Instagram', url: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png' },
-  { name: 'YouTube', url: 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg' },
-  { name: 'Wi-Fi', url: 'https://upload.wikimedia.org/wikipedia/commons/a/ae/WiFi_Logo.svg' },
+  { name: 'VietQR', url: '/logos/vietqr.png' },
+  { name: 'Zalo', url: '/logos/zalo.svg' },
+  { name: 'Facebook', url: '/logos/facebook.svg' },
+  { name: 'TikTok', url: '/logos/tiktok.svg' },
+  { name: 'Instagram', url: '/logos/instagram.png' },
+  { name: 'YouTube', url: '/logos/youtube.svg' },
+  { name: 'Wi-Fi', url: '/logos/wifi.svg' },
 ];
 
 export const LogoPanel: React.FC<LogoPanelProps> = ({ config, onChange }) => {

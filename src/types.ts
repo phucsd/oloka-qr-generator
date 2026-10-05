@@ -73,6 +73,8 @@ export interface BankInfo {
   bin: string;
   shortName: string;
   name: string;
+  code?: string;
+  logo?: string;
 }
 
 export interface VietQRData {

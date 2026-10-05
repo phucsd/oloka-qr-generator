@@ -102,7 +102,26 @@ export async function renderQRToCanvas(
   const qrOptions = buildQRCodeOptions(content, config);
   const qrCode = new QRCodeStyling(qrOptions);
 
-  const rawBlob = await qrCode.getRawData('png');
+  let rawBlob: Blob | null = null;
+  try {
+    rawBlob = (await qrCode.getRawData('png')) as Blob;
+  } catch (err) {
+    if (config.logoUrl) {
+      console.warn('QR logo render failed, falling back without logo:', err);
+      const fallbackOptions = buildQRCodeOptions(content, { ...config, logoUrl: '' });
+      const fallbackCode = new QRCodeStyling(fallbackOptions);
+      rawBlob = (await fallbackCode.getRawData('png')) as Blob;
+    } else {
+      throw err;
+    }
+  }
+
+  if (!rawBlob && config.logoUrl) {
+    const fallbackOptions = buildQRCodeOptions(content, { ...config, logoUrl: '' });
+    const fallbackCode = new QRCodeStyling(fallbackOptions);
+    rawBlob = (await fallbackCode.getRawData('png')) as Blob;
+  }
+
   if (!rawBlob) {
     throw new Error('Không thể render ảnh QR raw');
   }
@@ -246,7 +265,26 @@ export async function renderQRToVectorSVG(
   const qrOptions = buildQRCodeOptions(content, config);
   const qrCode = new QRCodeStyling(qrOptions);
 
-  const rawSvgBlob = await qrCode.getRawData('svg');
+  let rawSvgBlob: Blob | null = null;
+  try {
+    rawSvgBlob = (await qrCode.getRawData('svg')) as Blob;
+  } catch (err) {
+    if (config.logoUrl) {
+      console.warn('SVG logo render failed, falling back without logo:', err);
+      const fallbackOptions = buildQRCodeOptions(content, { ...config, logoUrl: '' });
+      const fallbackCode = new QRCodeStyling(fallbackOptions);
+      rawSvgBlob = (await fallbackCode.getRawData('svg')) as Blob;
+    } else {
+      throw err;
+    }
+  }
+
+  if (!rawSvgBlob && config.logoUrl) {
+    const fallbackOptions = buildQRCodeOptions(content, { ...config, logoUrl: '' });
+    const fallbackCode = new QRCodeStyling(fallbackOptions);
+    rawSvgBlob = (await fallbackCode.getRawData('svg')) as Blob;
+  }
+
   if (!rawSvgBlob) throw new Error('Không thể tạo SVG');
 
   const rawSvgText = await (rawSvgBlob as Blob).text();

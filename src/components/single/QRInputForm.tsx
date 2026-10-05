@@ -21,9 +21,16 @@ import { STATIC_BANKS, fetchLiveBankList } from '../../services/vietqrService';
 interface QRInputFormProps {
   selectedType: QRType;
   onContentChange: (type: QRType, data: any) => void;
+  currentLogoUrl?: string;
+  onLogoChange?: (logoUrl: string) => void;
 }
 
-export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onContentChange }) => {
+export const QRInputForm: React.FC<QRInputFormProps> = ({
+  selectedType,
+  onContentChange,
+  currentLogoUrl,
+  onLogoChange,
+}) => {
   const [bankList, setBankList] = useState<BankInfo[]>(STATIC_BANKS);
 
   // Load 55+ live banks on mount
@@ -292,6 +299,74 @@ export const QRInputForm: React.FC<QRInputFormProps> = ({ selectedType, onConten
               placeholder="Thanh toan don hang SP01"
               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
             />
+          </div>
+
+          {/* Logo Option for VietQR */}
+          <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-700">Logo trung tâm mã VietQR:</span>
+              {currentLogoUrl && (
+                <button
+                  type="button"
+                  onClick={() => onLogoChange?.('')}
+                  className="text-[11px] text-rose-600 hover:text-rose-700 font-medium cursor-pointer"
+                >
+                  Xóa logo
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => onLogoChange?.('/logos/vietqr.png')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all cursor-pointer ${
+                  currentLogoUrl === '/logos/vietqr.png'
+                    ? 'border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold shadow-2xs'
+                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <img src="/logos/vietqr.png" alt="VietQR" className="w-4 h-4 object-contain rounded-xs" />
+                <span>Logo VietQR</span>
+                {currentLogoUrl === '/logos/vietqr.png' && <span className="text-indigo-600 font-bold">✓</span>}
+              </button>
+
+              {(() => {
+                const selectedBank = bankList.find((b) => b.bin === vietqr.bankBin);
+                if (!selectedBank?.logo) return null;
+                const isSelected = currentLogoUrl === selectedBank.logo;
+                return (
+                  <button
+                    type="button"
+                    onClick={() => onLogoChange?.(selectedBank.logo!)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all cursor-pointer ${
+                      isSelected
+                        ? 'border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold shadow-2xs'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <img src={selectedBank.logo} alt={selectedBank.shortName} className="w-4 h-4 object-contain" />
+                    <span>Logo {selectedBank.shortName}</span>
+                    {isSelected && <span className="text-indigo-600 font-bold">✓</span>}
+                  </button>
+                );
+              })()}
+
+              <button
+                type="button"
+                onClick={() => onLogoChange?.('')}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border transition-all cursor-pointer ${
+                  !currentLogoUrl
+                    ? 'border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold shadow-2xs'
+                    : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
+                }`}
+              >
+                <span>Không dùng logo</span>
+              </button>
+            </div>
+            <p className="text-[11px] text-slate-400 font-normal">
+              Mã QR thanh toán VietQR thường dùng logo VietQR hoặc logo ngân hàng ở trung tâm để tăng tính nhận diện và độ tin cậy.
+            </p>
           </div>
         </div>
       )}

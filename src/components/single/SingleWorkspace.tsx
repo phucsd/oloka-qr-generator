@@ -33,15 +33,39 @@ export const SingleWorkspace: React.FC<SingleWorkspaceProps> = ({
     });
   };
 
+  const handleSelectType = (newType: QRType) => {
+    setSelectedType(newType);
+    if (newType === 'vietqr' && !designConfig.logoUrl) {
+      onDesignConfigChange({
+        ...designConfig,
+        logoUrl: '/logos/vietqr.png',
+        errorCorrectionLevel: 'H',
+        clearLogoBackground: true,
+      });
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       {/* Desktop Left Column / Mobile Top: Content & Design */}
       <div className="lg:col-span-7 xl:col-span-8 space-y-6">
         {/* Content Card: Type Picker + Input Fields */}
         <section className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 sm:p-6 space-y-4">
-          <QRTypePicker selectedType={selectedType} onSelectType={setSelectedType} />
+          <QRTypePicker selectedType={selectedType} onSelectType={handleSelectType} />
           <div className="pt-3 border-t border-slate-100">
-            <QRInputForm selectedType={selectedType} onContentChange={handleContentChange} />
+            <QRInputForm
+              selectedType={selectedType}
+              onContentChange={handleContentChange}
+              currentLogoUrl={designConfig.logoUrl}
+              onLogoChange={(logoUrl) => {
+                onDesignConfigChange({
+                  ...designConfig,
+                  logoUrl,
+                  errorCorrectionLevel: logoUrl ? 'H' : designConfig.errorCorrectionLevel,
+                  clearLogoBackground: true,
+                });
+              }}
+            />
           </div>
         </section>
 
